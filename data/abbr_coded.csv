@@ -1,0 +1,144 @@
+;prod_id;match;name;category;prod_similarity;price_web
+0;15363;1;Palapa Vollkorntortilla 370g;Süßes & Salziges;0.8383450857985346;2.29
+1;5603;1;Berief Bio Tofu Natur 2x200g;Fleisch & Fisch;0.8557386886335893;2.49
+2;6099;1;Rügenwalder Mühle Hauchschnitt Curry Typ Hähnchen vegan 70g;Fleisch & Fisch;0.8094687165724022;1.59
+3;13853;1;Honey Pomelo Pink 1 Stück;Obst & Gemüse;0.8863307297052343;2.99
+4;1345;1;REWE Bio Naturland Dinkel Crunchy 500g;Brot, Cerealien & Aufstriche;0.8323087707401722;2.59
+5;3863;0;Erasco Texas-Topf 800g;Fertiggerichte & Konserven;0.6939375486519841;3.29
+6;9143;0;Braunes Packpapier 70x100cm 4 Stück;Haus & Freizeit;0.7675728231074938;1.99
+7;1225;1;Pema Vitaminbrot 375g;Brot, Cerealien & Aufstriche;0.7917120805361266;1.89
+8;3676;0;Bürger Nudelteig 500g;Fertiggerichte & Konserven;0.7280089801935948;3.49
+9;4533;1;Maggi Asia Nudel Snack Ente 62g;Fertiggerichte & Konserven;0.7465865531240083;0.69
+10;9165;9;Einweg-Grill 1 Stück;Haus & Freizeit;0.75215251556476;2.99
+11;13779;1;Bio Banane ca. 200g;Obst & Gemüse;0.8542242588543347;0.4
+12;7249;9;GWF Rotwein Frisch & Fruchtig trocken 0,75l;Getränke & Genussmittel;0.8044209082238962;4.29
+13;14032;1;Zucchini grün ca. 220g;Obst & Gemüse;0.8771767622386762;0.66
+14;13814;1;Champignons weiß 400g;Obst & Gemüse;0.7315328377060578;1.69
+15;4024;9;Hak Rhabarberkompott 370ml;Fertiggerichte & Konserven;0.7616500874467419;1.79
+16;856;1;Glockenbrot Krusti Brötchen;Brot, Cerealien & Aufstriche;0.828998639069395;0.69
+17;1273;1;REWE Beste Wahl Mehrkornschnitte 500g;Brot, Cerealien & Aufstriche;0.7771660771043153;1.89
+18;5548;1;ja! Weizen Tortillas 372g;Fertiggerichte & Konserven;0.8416961862562933;1.29
+19;13853;1;Honey Pomelo Pink 1 Stück;Obst & Gemüse;0.8863307297052343;2.99
+20;13874;1;Lauchzwiebeln im Bund;Obst & Gemüse;0.830173199021196;0.99
+21;13811;1;Broccoli 500g;Obst & Gemüse;0.751818459420992;1.79
+22;13824;1;Eisbergsalat 1 Stück;Obst & Gemüse;0.9054089485051944;1.19
+23;13992;1;Rucola 125g;Obst & Gemüse;0.7807686815326363;0.99
+24;13902;1;Porree 1 Stück;Obst & Gemüse;0.8563431994036167;0.79
+25;13816;1;Cherry Romatomaten 250g;Obst & Gemüse;0.8149281304022573;0.99
+26;13971;1;REWE Regional Gurke 1 Stück;Obst & Gemüse;0.8089919939483314;1.29
+27;13897;1;Paprika rot ca. 250g;Obst & Gemüse;0.8678914266524476;1.0
+28;11504;1;Bio Eier frisch 10 Stück;Käse, Eier & Molkerei;0.794776193148502;3.29
+29;16409;1;Gustavo Gusto Pizza Margherita 410g;Tiefkühlkost;0.8440695166327783;3.49
+30;9491;9;Bünting Tee Bio-Fenchel-Anis-Kümmel 60g, 20 Beutel;Kaffee, Tee & Kakao;0.6569947102481598;2.69
+31;9143;0;Braunes Packpapier 70x100cm 4 Stück;Haus & Freizeit;0.7675728231074938;1.99
+32;11514;0;Brunch Brotaufstrich Balance 185g;Käse, Eier & Molkerei;0.7827410925298599;1.89
+33;1198;1;Nutella 450g;Brot, Cerealien & Aufstriche;0.8053735852377644;3.29
+34;8099;1;Original Turmbräu Export Preimium Bier 0,5l;Getränke & Genussmittel;0.7407007693974332;0.55
+35;8181;9;Pfanner Eistee Pfirsich 0,33l;Getränke & Genussmittel;0.7819087757315919;1.29
+36;9586;1;Jacobs Filterkaffee Auslese Mild und Sanft 500g;Kaffee, Tee & Kakao;0.8099027240707938;5.49
+37;13516;1;Vileda Schwammtuch 5 Stück;Küche & Haushalt;0.7953524413489015;2.29
+38;1457;1;Schnitzer Bio Baguette Classic glutenfrei 360g;Brot, Cerealien & Aufstriche;0.7871435573180989;4.39
+39;4968;1;REWE Beste Wahl Maiskölbchen 190g;Fertiggerichte & Konserven;0.7840859109971056;1.29
+40;6751;1;Bitburger Pils 0,5l;Getränke & Genussmittel;0.8225029789894642;0.95
+41;7442;9;Hella Pfirsich 0,75l;Getränke & Genussmittel;0.7871849041625756;0.79
+42;4169;0;Jürgen Langbein Lamm-Fond 500ml;Fertiggerichte & Konserven;0.7291330478328675;3.29
+43;8181;9;Pfanner Eistee Pfirsich 0,33l;Getränke & Genussmittel;0.7840030890313365;1.29
+44;856;1;Glockenbrot Krusti Brötchen;Brot, Cerealien & Aufstriche;0.828998639069395;0.69
+45;4024;9;Hak Rhabarberkompott 370ml;Fertiggerichte & Konserven;0.7616500874467419;1.79
+46;945;1;Kartoffelbrötchen mit Karotte;Brot, Cerealien & Aufstriche;0.8821941850966087;1.19
+47;4024;9;Hak Rhabarberkompott 370ml;Fertiggerichte & Konserven;0.7616500874467419;1.79
+48;858;1;Glockenbrot Kürbiskernbrötchen;Brot, Cerealien & Aufstriche;0.8162002277661478;0.39
+49;4024;9;Hak Rhabarberkompott 370ml;Fertiggerichte & Konserven;0.7616500874467419;1.79
+50;862;1;Glockenbrot Weltmeister Brötchen;Brot, Cerealien & Aufstriche;0.8662105424837228;0.49
+51;4024;9;Hak Rhabarberkompott 370ml;Fertiggerichte & Konserven;0.7616500874467419;1.79
+52;1368;1;REWE Feine Welt Ciabatta Piccola 440g;Brot, Cerealien & Aufstriche;0.8492671378658584;2.99
+53;4024;9;Hak Rhabarberkompott 370ml;Fertiggerichte & Konserven;0.7616500874467419;1.79
+54;6125;1;Rügenwalder Mühle Vegane Teewurst Fein 100g;Fleisch & Fisch;0.831876107876957;1.99
+55;13286;9;Fehler in der Eingabe;Küche & Haushalt;0.648349555940015;3.49
+56;5829;0;Kalbsleber in Scheiben;Fleisch & Fisch;0.7683519617968877;4.78
+57;13845;1;Granatapfel 1 Stück;Obst & Gemüse;0.7707411081292714;1.49
+58;13993;1;Salatgurke 1 Stück;Obst & Gemüse;0.876190419041555;0.99
+59;11920;1;Lätta Margarine Original 450g;Käse, Eier & Molkerei;0.8177686464671177;1.99
+60;11192;1;ja! Weizenmehl Type 405 1kg;Kochen & Backen;0.8860686987811663;0.65
+61;10695;1;Mehlzauber Bio Dinkelmehl 630 1kg;Kochen & Backen;0.7998639492261299;2.29
+62;11008;1;Ruf Feine Speisestärke 400g;Kochen & Backen;0.8029461809937013;1.49
+63;1457;1;Schnitzer Bio Baguette Classic glutenfrei 360g;Brot, Cerealien & Aufstriche;0.7871435573180989;4.39
+64;7573;1;Jever Pilsener 0,5l;Getränke & Genussmittel;0.8726848910904856;0.99
+65;8181;9;Pfanner Eistee Pfirsich 0,33l;Getränke & Genussmittel;0.7819087757315919;1.29
+66;8231;1;Pueblo Tabak Blue 30g;Getränke & Genussmittel;0.773667498960746;5.95
+67;11911;9;Leerdammer Leger 140g;Käse, Eier & Molkerei;0.7273025016062833;2.75
+68;11911;9;Leerdammer Leger 140g;Käse, Eier & Molkerei;0.7273025016062833;2.75
+69;11911;9;Leerdammer Leger 140g;Käse, Eier & Molkerei;0.7273025016062833;2.75
+70;11911;9;Leerdammer Leger 140g;Käse, Eier & Molkerei;0.7273025016062833;2.75
+71;11911;9;Leerdammer Leger 140g;Käse, Eier & Molkerei;0.7273025016062833;2.75
+72;11911;9;Leerdammer Leger 140g;Käse, Eier & Molkerei;0.7273025016062833;2.75
+73;17976;1;Feldmann Apfelessig 0,75l;Öle, Soßen & Gewürze;0.7605640757804755;1.49
+74;5622;1;Billie Green Vegane Salami 165g;Fleisch & Fisch;0.8678395916472353;3.79
+75;4024;9;Hak Rhabarberkompott 370ml;Fertiggerichte & Konserven;0.7616500874467419;1.79
+76;6122;1;Rügenwalder Mühle Vegane Pommersche Apfel und Zwiebel 125g;Fleisch & Fisch;0.7824461083454991;2.49
+77;4024;9;Hak Rhabarberkompott 370ml;Fertiggerichte & Konserven;0.7616500874467419;1.79
+78;1103;1;Mestemacher Bio Italienische Dinkel-Wraps 225g;Brot, Cerealien & Aufstriche;0.8585848252870193;2.79
+79;5829;0;Kalbsleber in Scheiben;Fleisch & Fisch;0.7683519617968877;4.78
+80;6131;1;Rügenwalder Mühle Veganer Schinken Spicker mit bunter Paprika 80g;Fleisch & Fisch;0.7809043197766432;1.59
+81;6181;1;Veggy Friends Vegane Schnetzel 120g;Fleisch & Fisch;0.7945137345121253;2.29
+82;13845;1;Granatapfel 1 Stück;Obst & Gemüse;0.7707411081292714;1.49
+83;13906;1;REWE Beste Wahl Bratpaprika 200g;Obst & Gemüse;0.7685523713270184;1.79
+84;6900;1;Chianti Denominazione di Origine Controllata e Garantita Rotwein trocken 0,75l;Getränke & Genussmittel;0.8364274372639575;2.99
+85;9105;1;ŁOMŻA Pilsener 0,5l;Getränke & Genussmittel;0.8052806834260674;1.09
+86;8181;9;Pfanner Eistee Pfirsich 0,33l;Getränke & Genussmittel;0.7840030890313365;1.29
+87;8134;1;Paulaner Münchner Hell 0,5l;Getränke & Genussmittel;0.8435284724309404;0.79
+88;8181;9;Pfanner Eistee Pfirsich 0,33l;Getränke & Genussmittel;0.7840030890313365;1.29
+89;7130;1;Fanta Lemon 0,33l;Getränke & Genussmittel;0.8777495743823075;1.59
+90;7442;9;Hella Pfirsich 0,75l;Getränke & Genussmittel;0.7777982391434882;0.79
+91;15179;0;Meray Sonnenblumenkerne 300g;Süßes & Salziges;0.7758830983706965;2.99
+92;5829;0;Kalbsleber in Scheiben;Fleisch & Fisch;0.7683519617968877;4.78
+93;13852;1;Honey Pomelo 1 Stück;Obst & Gemüse;0.8628729791442853;2.99
+94;11267;1;Alsan Bio-Margarine 250g;Käse, Eier & Molkerei;0.8257099101810077;1.79
+95;1345;1;REWE Bio Naturland Dinkel Crunchy 500g;Brot, Cerealien & Aufstriche;0.8323087707401722;2.59
+96;9143;0;Braunes Packpapier 70x100cm 4 Stück;Haus & Freizeit;0.7675728231074938;1.99
+97;17308;0;Fehler in der Eingabe;Tierbedarf;0.7238683999241584;9.99
+98;10661;1;Küchle Oblaten Blumen 12 Stück;Kochen & Backen;0.7275268058775961;2.29
+99;11372;1;Arla Skyr Vanille 450g;Käse, Eier & Molkerei;0.7191884950038232;1.99
+100;12655;1;ja! Sahne Pudding Schoko 200g;Käse, Eier & Molkerei;0.8099963288025342;0.49
+101;6934;1;Coca-Cola 1l;Getränke & Genussmittel;0.7975337610078292;1.35
+102;7443;9;Hella Pfirsich 1,5l;Getränke & Genussmittel;0.7893734462136872;1.29
+103;13334;1;Sodastream QC Co2 Füllung 60L;Küche & Haushalt;0.8252221536039976;5.99
+104;11867;1;Körfez Joghurt Original türkische Art 1000g;Käse, Eier & Molkerei;0.8061643329627576;2.99
+105;12569;1;bedda Vegarella cremig & mild vegan 150g;Käse, Eier & Molkerei;0.7775678251219822;2.49
+106;6751;1;Bitburger Pils 0,5l;Getränke & Genussmittel;0.8639121304565455;0.95
+107;8181;9;Pfanner Eistee Pfirsich 0,33l;Getränke & Genussmittel;0.7819087757315919;1.29
+108;5603;1;Berief Bio Tofu Natur 2x200g;Fleisch & Fisch;0.8557386886335893;2.49
+109;5829;0;Kalbsleber in Scheiben;Fleisch & Fisch;0.7683519617968877;4.78
+110;13985;1;Rispentomaten 500g;Obst & Gemüse;0.7994785370626767;2.99
+111;6183;1;Vegini Gehacktes vegan 200g;Fleisch & Fisch;0.770232738006361;3.99
+112;4024;9;Hak Rhabarberkompott 370ml;Fertiggerichte & Konserven;0.7616500874467419;1.79
+113;12267;1;REWE Bio Feta 150g;Käse, Eier & Molkerei;0.8106272772126307;2.09
+114;11933;1;Marka Hellas Feta laktosefrei 150g;Käse, Eier & Molkerei;0.799633868952205;1.99
+115;926;1;Ibis Lavash Fladenbrot Classic 320g;Brot, Cerealien & Aufstriche;0.7478640325858782;2.49
+116;13872;0;Kopfsalat 1 Stück;Obst & Gemüse;0.845094609249281;1.79
+117;13788;1;Bio Knoblauch 100g;Obst & Gemüse;0.7924692997473333;1.09
+118;15900;0;Vivil Pfefferminz 3x29g;Süßes & Salziges;0.7697553249513474;1.69
+119;14146;1;Cadbury Schokolade mit Karamell Curlywurly Squirlies 110g;Süßes & Salziges;0.7627348061084134;2.19
+120;8231;1;Pueblo Tabak Blue 30g;Getränke & Genussmittel;0.773667498960746;5.95
+121;9446;1;ja! Anzündwürfel 64 Stück;Haus & Freizeit;0.7905277408188485;1.89
+122;6164;1;Tukan Bio Räuchertofu vegan 200g;Fleisch & Fisch;0.7619808509815316;2.99
+123;5603;1;Berief Bio Tofu Natur 2x200g;Fleisch & Fisch;0.8557386886335893;2.49
+124;13871;1;Kohlrabi aus der Region;Obst & Gemüse;0.8808111041089204;0.89
+125;13814;1;Champignons weiß 400g;Obst & Gemüse;0.7315328377060578;1.69
+126;13873;1;Koriander 25g;Obst & Gemüse;0.8561661676394713;0.99
+127;10605;1;Exotic Food Authentic Thai Reisnudeln 250g;Kochen & Backen;0.7650829977961237;2.69
+128;10945;1;Real Thai Reispapier 100g;Kochen & Backen;0.8025443695445107;2.69
+129;6496;1;5,0 Original Pils 0,5l;Getränke & Genussmittel;0.8062503351274221;0.65
+130;8181;9;Pfanner Eistee Pfirsich 0,33l;Getränke & Genussmittel;0.7819087757315919;1.29
+131;8430;0;Rietburg Weißwein Riesling QbA trocken 1l;Getränke & Genussmittel;0.7377215348740442;5.49
+132;856;1;Glockenbrot Krusti Brötchen;Brot, Cerealien & Aufstriche;0.828998639069395;0.69
+133;13814;1;Champignons weiß 400g;Obst & Gemüse;0.7315328377060578;1.69
+134;11218;0;Almette Kräuter 150g;Käse, Eier & Molkerei;0.7954709885305169;1.99
+135;10751;1;Oryza Risotto Carnaroli 375g;Kochen & Backen;0.8082701484969669;3.39
+136;15975;1;ja! Doppelkeks 500g;Süßes & Salziges;0.8195338908128285;1.69
+137;14791;1;Lay's Salt & Vinegar 150g;Süßes & Salziges;0.8934783506562832;1.99
+138;14091;0;Arko Erdnusstaler 200g;Süßes & Salziges;0.7543911818922413;2.99
+139;14091;0;Arko Erdnusstaler 200g;Süßes & Salziges;0.7543911818922413;2.99
+140;8181;9;Pfanner Eistee Pfirsich 0,33l;Getränke & Genussmittel;0.7840030890313365;1.29
+141;13734;1;ja! Müllsäcke 60l mit Zugbeutel 25 Stück;Küche & Haushalt;0.8214461209426349;2.49
+142;6269;9;Wilhelm Brandenburg Kasseler Nacken ohne Knochen;Fleisch & Fisch;0.715664975278191;6.22
