@@ -104,7 +104,7 @@ Verkürzter Produktname: {item}
     return prompt
 
 # %%
-def process_abbreviation(item):
+def main(item):
     """Completes the shortened item to full product name and categorizes it in a main and sub-category
 
     Args:
