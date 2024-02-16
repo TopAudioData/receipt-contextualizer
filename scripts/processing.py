@@ -49,7 +49,7 @@ def get_rewe_categories():
     # Import product categories as dict w/ key: main category, value: list of subcategories
     path = os.path.dirname(__file__)
     path = os.path.join(path,'..','data','categories_rewe.json')
-    with open('path') as f:
+    with open(path) as f:
         categories_rewe = json.load(f)
 
     # Remove certain categories because they are actually labels
