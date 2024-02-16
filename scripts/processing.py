@@ -16,6 +16,7 @@ from mistralai.models.chat_completion import ChatMessage
 import json
 
 import os
+import sys
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -46,7 +47,9 @@ def get_rewe_categories():
     """
     
     # Import product categories as dict w/ key: main category, value: list of subcategories
-    with open('../data/categories_rewe.json') as f:
+    path = os.path.dirname(__file__)
+    path = os.path.join(path,'..','data','categories_rewe.json')
+    with open('path') as f:
         categories_rewe = json.load(f)
 
     # Remove certain categories because they are actually labels
