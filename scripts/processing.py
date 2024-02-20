@@ -4,7 +4,7 @@ If run as script, process the input list of abbreviated items
 
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
-from ast import literal_eval
+#from ast import literal_eval
 
 import json
 
@@ -26,7 +26,7 @@ def get_embeddings_by_chunks(data, chunk_size):
     embeddings_response = [
         client.embeddings(model="mistral-embed", input=c) for c in chunks
     ]
-    return [literal_eval(d.embedding) for e in embeddings_response for d in e.data]
+    return [d.embedding for e in embeddings_response for d in e.data]
 
 def run_mistral(user_message, model="mistral-medium"):
     """Gets a chat completion response from Mistral API for user_message prompt.
