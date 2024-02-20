@@ -26,9 +26,8 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-SAK/
-SA_key/
-rewe_scanned/
+
+
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -132,10 +131,12 @@ dmypy.json
 .pyre/
 
 
-data/*.csv
+# Work Folders to be not uploaded
+.DS_Store/
+SA_key/
+rewe_scanned/
 models/*.sav
 mlruns
-models/*
 
 #config file has sensitive data
 .mlflow_uri
