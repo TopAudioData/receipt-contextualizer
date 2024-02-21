@@ -132,7 +132,7 @@ dmypy.json
 
 
 # Work Folders to be not uploaded
-*.DS_Store/
+*.DS_Store
 SA_key/
 rewe_scanned/
 models/*.sav
@@ -140,4 +140,3 @@ mlruns
 
 #config file has sensitive data
 .mlflow_uri
-.DS_Store
