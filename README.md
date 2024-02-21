@@ -112,11 +112,10 @@ There is no constraint between runs to have the same metadata tracked. I.e. for 
 ![mlflow metadata](images/3_metadata.png)
 
 
-Install postgresql@14 `brew install postgresql@14
-Install Docker
-
-1. Run `docker build -t postgres .``
-1. Run
+1. Install [Docker](https://www.docker.com/get-started/)
+1. Install postgresql@14 `brew install postgresql@14`
+1. Run in terminal: `docker build -t postgres .`
+1. Run in terminal: 
 
 ```bash
 docker run -d -e POSTGRES_USER='postgres' \
@@ -125,4 +124,5 @@ docker run -d -e POSTGRES_USER='postgres' \
     -v $(pwd)/db-data:/var/lib/postgresql/data \
     -p 5432:5432 \
     --name receipts-db \
-    postgres```
+    postgres
+```
