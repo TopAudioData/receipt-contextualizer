@@ -95,7 +95,8 @@ def insert_receipt_data(processed_receipt_data, conn, cur):
         ) for _, row in processed_receipt_data.iterrows()]
     
     # SQL query
-    execute_values(cur, "INSERT INTO receipts (receipt_id, price, product_abbr, product_name, category_main, category_sub, embedding) VALUES %s", data_list)
+    execute_values(cur, "INSERT INTO receipts (receipt_id, price, product_abbr, \
+                   product_name, category_main, category_sub, embedding) VALUES %s", data_list)
     conn.commit()
     print('Wrote in database.')
 
@@ -150,7 +151,7 @@ if __name__=='__main__':
     Sets up receipts table
     Sets up rewe table
     Fill rewe table with products and embeddings'''
-    
+
     conn, cur = connect_cursor()
     setup_vector(conn, cur)
     create_table('receipts', conn, cur)
