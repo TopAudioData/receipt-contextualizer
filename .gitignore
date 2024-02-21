@@ -140,3 +140,4 @@ mlruns
 
 #config file has sensitive data
 .mlflow_uri
+.DS_Store
