@@ -6,6 +6,7 @@ from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 #from ast import literal_eval
 
+import pandas as pd
 import json
 
 import os
@@ -135,7 +136,7 @@ def process_abbr_item(item, categories):
         message = run_mistral(prompt)
         print('Received response')
     except:
-        print('\n\n⚠️⚠️⚠️\n\nError requesting response from Mixtral!\n\nAPI response:')
+        print('\n\n!!!\n\nError requesting response from Mixtral!\n\nAPI response:')
 
     # Parse message string to json
     try:
@@ -143,7 +144,7 @@ def process_abbr_item(item, categories):
         item_json['product_abbr'] = item
         print(f"Parses response successfully, {item_json['productName']}")
     except:
-        print('\n\n⚠️⚠️⚠️\n\Error parsing Mixtral message, not formatted correctly as JSON!\n\nMessage:')
+        print('\n\n!!!\n\nError parsing Mixtral message, not formatted correctly as JSON!\n\nMessage:')
         print(message)
     
     return item_json
@@ -157,6 +158,39 @@ def process_abbr_items_list(item_list, categories):
     
     return list_processed_items
 
+def process_receipt(receipt_scan_data):
+    '''Takes the abbreviated names, queries Mistral for completion for full name, categories, creates embeddings
+    
+    Args:
+        receipt_scan_data (df): DataFrame with columns receipt_id, price, product_abbr
+    Returns:
+        df: DataFrame with input data, Mistral-inferred data and embeddings
+    '''
+    # Get abbreviated product names from scan as list
+    items_to_process = receipt_scan_data.product_abbr.to_list()
+
+    # Get the categories to use in the prompt
+    categories = get_rewe_categories()
+
+    # Prompt Mistral to augment abbreviated items from receipt
+    items_processed = process_abbr_items_list(items_to_process, categories)
+
+    # Save Mistral JSONs in a df for concating with embeddings
+    items_processed_df = pd.DataFrame(items_processed)
+
+    # Put augmented data for each receipt item in a list for embedding
+    product_strings = [" ".join(item.values()) for item in items_processed]
+
+    # Get the embeddings of augmented receipt items
+    product_embeddings = get_embeddings_by_chunks(product_strings, 50)
+
+    # Concat embeddings to the processed items df
+    items_processed_df['embedding'] = product_embeddings
+
+    # Add information from receipt scan to processed items, price, receipt_id
+    items_processed_df = receipt_scan_data.join(items_processed_df.drop('product_abbr', axis=1))
+    
+    return items_processed_df
 
 
 
