@@ -7,6 +7,7 @@ from psycopg2 import sql
 import pandas as pd
 import numpy as np
 
+# TODO: Get connection string from venv
 # Database connection
 
 def connect_cursor():
@@ -26,13 +27,17 @@ def connect_cursor():
     return (conn, cur)
 
 # Setup
-def setup_vector(conn, cur):
+def setup_vector():
+    conn, cur = connect_cursor()
     # Install pgvector
     cur.execute("CREATE EXTENSION IF NOT EXISTS vector");
     conn.commit()
+    conn.close()
 
-def create_table(table, conn, cur):
+def create_table(table):
     '''Create either receipts or rewe database'''
+
+    conn, cur = connect_cursor()
 
     if table == 'receipts':
         table_create_command = """
@@ -50,10 +55,10 @@ def create_table(table, conn, cur):
         cur.execute(table_create_command)
         cur.close()
         conn.commit()
+        conn.close()
         
         print(f'Created table {table}')
-
-    if table == 'rewe':
+    elif table == 'rewe':
         table_create_command = """
             CREATE TABLE rewe (
                         id bigserial primary key, 
@@ -66,23 +71,28 @@ def create_table(table, conn, cur):
         cur.execute(table_create_command)
         cur.close()
         conn.commit()
+        conn.close()
 
         print(f'Created table {table}')
-
     else:
         print(f'Table format not found: choose either receipts/rewe')
+        conn.close()
 
-def setup_rewe_table(conn, cur):
+def setup_rewe_table():
     '''Fills rewe table with store products, embeddings'''
+    conn, cur = connect_cursor()
+
     df_rewe = pd.read_csv('../data/name_embeds_incl_special_items_no_context.csv', index_col=0)
     data_list = [(row['name'], row['price'], row['category'], row['embeddings']) for _, row in df_rewe.iterrows()]
     execute_values(cur, "INSERT INTO rewe (name, price, category, embedding) VALUES %s", data_list)
     conn.commit()
+    conn.close()
 
 # Write to database
-def insert_receipt_data(processed_receipt_data, conn, cur):
+def insert_receipt_data(processed_receipt_data):
     '''Writes a receipt df into receipts database.'''
-    
+    conn, cur = connect_cursor()
+
     # Prepare data to insert to psql
     data_list = [(
         row['receipt_id'], 
@@ -98,11 +108,13 @@ def insert_receipt_data(processed_receipt_data, conn, cur):
     execute_values(cur, "INSERT INTO receipts (receipt_id, price, product_abbr, \
                    product_name, category_main, category_sub, embedding) VALUES %s", data_list)
     conn.commit()
+    conn.close()
     print('Wrote in database.')
 
 # Retrieve from database
-def get_receipt_data(conn, cur):
+def data():
     '''Returns all receipt data in database as DataFrame.'''
+    conn, cur = connect_cursor()
 
     # SQL query
     cur.execute("SELECT * FROM receipts;")
@@ -117,8 +129,9 @@ def get_receipt_data(conn, cur):
     return df
 
 # Query database
-def get_closest(query_embedding, n_closest, table, conn, cur):
+def search(query_embedding, n_closest, table):
     '''Performs semantic search on user query either in receipts or rewe table.'''
+    conn, cur = connect_cursor()
 
     # Format embedding str as array
     # Embedding function returns a list, get the first element of list
@@ -139,12 +152,12 @@ def get_closest(query_embedding, n_closest, table, conn, cur):
         column_names = [x.strip() for x in 'id_pk, receipt_id, price, product_abbr, \
                         product_name, category_main, category_sub, embedding'.split(',')]
         df = pd.DataFrame(records, columns=column_names)
-    if table == 'rewe':
+    elif table == 'rewe':
         df = pd.DataFrame(records, columns=['id', 'name', 'price', 'category', 'embedding'])
 
     return df
 
-if __name__=='__main__':
+def setup():
     '''Run setup
     
     Installs vector extension to postgres
@@ -152,9 +165,26 @@ if __name__=='__main__':
     Sets up rewe table
     Fill rewe table with products and embeddings'''
 
+    # Connect to db
     conn, cur = connect_cursor()
-    setup_vector(conn, cur)
-    create_table('receipts', conn, cur)
-    create_table('rewe', conn, cur)
-    setup_rewe_table(conn, cur)
+
+    # Install pgvector
+    setup_vector()
+
+    # Create receipts table
+    conn, cur = connect_cursor()
+    create_table('receipts')
+
+    # Create rewe table
+    conn, cur = connect_cursor()
+    create_table('rewe')
+    
+    # Fill in rewe table
+    conn, cur = connect_cursor()
+    setup_rewe_table()
+
+
+if __name__=='__main__':    
+    setup()
+
 
