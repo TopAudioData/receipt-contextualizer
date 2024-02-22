@@ -1,24 +1,18 @@
-from math import exp
-from numpy import place
 import streamlit as st
-import pandas as pd
 
-import processing_llm as llm
+import process_llm as llm
 import database as db
+
+import plotly.express as px
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 df = db.data()
 st.set_page_config(layout="wide")
-st.title('Home')
 
-st.header('Groceries history')
-st.dataframe(df)
 
-st.header('Expenses by category')
-st.write(df.groupby('category_main').price.sum())
+st.title('Search')
 
-st.divider()
-
-st.header('Search')
 col1, col2 = st.columns(2)
 with col2:
     query_table = st.radio(
@@ -41,5 +35,9 @@ with col1:
             query_results = db.search(query_embedding, n_results, query_table)
 
 
+
 if query_results is not None:
-    st.dataframe(query_results.drop('embedding', axis=1))
+    st.dataframe(query_results.drop(['embedding', 'id_pk'], axis=1))
+
+
+
