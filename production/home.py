@@ -8,9 +8,10 @@ import plotly.express as px
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-
-
-st.set_page_config(layout="wide")
+st.sidebar.page_link('home.py', label='Home')
+st.sidebar.page_link('pages/search.py', label='Search', icon='🔎')
+st.sidebar.page_link('pages/upload.py', label='Upload', icon='🧾')
+st.sidebar.page_link('pages/visualization.py', label='Visualize', icon='📊')
 
 st.title('Home')
 
