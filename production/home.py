@@ -1,9 +1,6 @@
-from math import exp
-from altair import AggregateTransform
 import streamlit as st
 import pandas as pd
 import numpy as np
-import database as db
 import datetime as dt
 
 import plotly.express as px
@@ -11,12 +8,25 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+import database as db
+
+# Page config
+st.set_page_config(
+    page_title="Receipt contextualizer • Home",
+    page_icon=":nerd_face:",
+    layout="centered",
+    initial_sidebar_state="expanded"
+    )
+
 # Page navigation
-st.sidebar.page_link('home.py', label='Home')
+st.sidebar.title('Receipt :receipt::nerd_face::bar_chart: Contextualizer')
+st.sidebar.page_link('home.py', label='Home', icon='📊')
 st.sidebar.page_link('pages/search.py', label='Search', icon='🔎')
 st.sidebar.page_link('pages/upload.py', label='Upload', icon='🧾')
-st.sidebar.page_link('pages/visualization.py', label='Visualize', icon='📊')
+st.sidebar.page_link('pages/data.py', label='Data', icon='🗄️')
+st.sidebar.page_link('pages/visualization.py', label='Explainer', icon='🤯')
 st.sidebar.divider()
+st.sidebar.write('Tweak the dashboard')
 
 #Get receipts data from database
 df = db.data()
@@ -44,7 +54,7 @@ df = df.join(df_dates.set_index('receipt_id'), on='receipt_id')
 # Options for dashboard
 
 # Show subcategories
-toggle_subcategories = st.sidebar.toggle('I want the details :tea: :teapot:')
+toggle_subcategories = st.sidebar.toggle('I need details :tea: :teapot:')
 
 # Select timeframe
 df_timeframe = [df.receipt_date.min().date(), df.receipt_date.max().date()]
@@ -88,29 +98,31 @@ with metric3:
 
 
 
-
-st.header('What makes up most of my expenses?')
-
 # Choose with toggle if subcategories are colored in
 if not toggle_subcategories:
+    #
     # Show h-bar of categories
+    #
     fig = px.bar(df.rename(columns=column_names),
                 x='Price', y='Category', 
-                hover_data=['Kind', 'Name', 'Name on receipt', 'Date'],
+                hover_data=['Name'], # TODO:hoverdata
                 orientation='h')
+    fig.update_traces(hovertemplate='%{x} €')
     fig.update_layout(
         yaxis = {"categoryorder":"total ascending"},
         xaxis_title="Sum of expenses in €")
 
-
     st.plotly_chart(fig, use_container_width=True)
 else:
-    # Show h-bar chart with subcategories
+    #
+    # H-bar chart with subcategories
+    #
     fig = px.bar(df.rename(columns=column_names), 
                 x='Price', y='Category', 
                 color='Kind', 
-                hover_data=['Name', 'Name on receipt', 'Date'],
+                hover_data=['Kind', 'Name', 'Price'],
                 orientation='h')
+    #fig.update_traces(hovertemplate='%{x} €') # TODO: hovertemplate '%{Kind}: {Price}' fails
     fig.update_layout(
         yaxis = {"categoryorder":"total ascending"},
         xaxis_title="Sum of expenses in €",
@@ -121,23 +133,32 @@ else:
 
 
 
-
-st.header('Spending over time')
-aggregate_state = st.radio('Select aggregation',
-                           ['Days', 'Months'])
-if aggregate_state == 'Days':
+header, radio = st.columns([2,3])
+with header:
+    st.header('My expenses per')
+with radio:
+    aggregate_state = st.radio('Select period', ['day', 'month'], 
+                               horizontal=True, label_visibility='hidden',
+                               index=1)
+if aggregate_state == 'day':
     if not toggle_subcategories:
+        #
         # Barplot over time one color
+        #
         fig = px.bar(df.rename(columns=column_names).sort_values(by='Date'), 
                         x='Date', y='Price',
-                        hover_data=['Category', 'Kind', 'Name', 'Name on receipt'])
+                        hover_data=['Category', 'Kind', 'Name', 'Name on receipt']
+                        )
+        #fig.update_traces(hovertemplate='') # TODO: fails to display hover_data
         fig.update_layout(
                 yaxis_title="Sum of receipts in €",
                 xaxis_title='',
                 showlegend=False)
         st.plotly_chart(fig, use_container_width=True)
     else:
+        #
         # Barplot over time with colors by category
+        #
         fig = px.bar(df.rename(columns=column_names).sort_values(by='Date'), 
                         x='Date', y='Price',
                         color='Category',
@@ -147,9 +168,11 @@ if aggregate_state == 'Days':
                 xaxis_title='',
                 showlegend=False)
         st.plotly_chart(fig, use_container_width=True)
-elif aggregate_state == 'Months':
+elif aggregate_state == 'month':
     if not toggle_subcategories:
+        #
         # Histogram of expenses by month
+        #
         fig = px.histogram(
             df.rename(columns=column_names), 
             x="Date", 
@@ -160,7 +183,9 @@ elif aggregate_state == 'Months':
         fig.update_layout(bargap=0.1, yaxis_title='Sum of expenses in €')
         st.plotly_chart(fig, use_container_width=True)
     else:
+        #
         # Histogram of expenses by month with categories
+        #
         fig = px.histogram(
             df.rename(columns=column_names), 
             x="Date", 
@@ -188,19 +213,19 @@ elif aggregate_state == 'Months':
 
         st.dataframe(df_monthly)
 
-
-# Show all data and edit data in expander
-with st.expander('Your groceries spendings, all in on place…'):
-    full_data = st.toggle('Edit data')
-    if full_data:
-        # Show an editable df
-        st.data_editor(df.rename(columns=column_names))
-        # TODO: Embed edited entries and overwrite entry in db
-        st.button('Submit Edits', type='primary')
-    else:
-        # Show prettified dataframe
-        df['Date'] = df_dates.receipt_date.dt.strftime('%d.%m.%Y')
-        st.dataframe(df[['Date', 'product_name', 'category_sub', 'price']]
-                     .sort_values(by='Date')
-                     .rename(columns=column_names)
-                     .style.format({'Price':'{:.2f} €'}))
+if False:
+    # Show all data and edit data in expander
+    with st.expander('Your groceries spendings, all in on place…'):
+        full_data = st.toggle('Edit data')
+        if full_data:
+            # Show an editable df
+            st.data_editor(df.rename(columns=column_names))
+            # TODO: Embed edited entries and overwrite entry in db
+            st.button('Submit Edits', type='primary')
+        else:
+            # Show prettified dataframe
+            df['Date'] = df_dates.receipt_date.dt.strftime('%d.%m.%Y')
+            st.dataframe(df[['Date', 'product_name', 'category_sub', 'price']]
+                        .sort_values(by='Date')
+                        .rename(columns=column_names)
+                        .style.format({'Price':'{:.2f} €'}))
