@@ -9,7 +9,7 @@ import streamlit as st
 import process_ocr as ocr
 import make_boxes as mabo
 import read_receipt 
-
+import process_llm as llm
 
 from altair import DerivedStream
 import streamlit as st
@@ -21,50 +21,32 @@ from PIL import Image, ImageDraw
 
 st.title('Upload')
 
-# Funtion to make boxes around the textblocks on the receipt
-# should be cached to prevent repeated call
-#@st.cache_data
-#def cached_render_doc_text(image):
-#    return mabo.render_doc_text(image)
-
-
+# read_receipt function is cached, because it takes long
 @st.cache_data
+#takes the uploaded image-object and returns recognized text in a df and the boxed-receipt
 def create_receipt_value_dict(uploaded_files):
+    # dictionary to take the receipt-text-df and the boxed-image
     receipt_value_dict = {}
-    # find the selected image-FILE
-    for uploaded_file in uploaded_files: # look at every file
-        # check if the iterated FILE matchs the selected file-NAME
-                # open the image
-                #image = Image.open(uploaded_file)
-                # give the image to the function to make boxes
-                #image_boxed = mabo.render_doc_text(uploaded_file)
+    #process all uploaded files
+    for uploaded_file in uploaded_files: 
+                # give the image-object to the function to ocr
                 df_sorted, image_boxed = read_receipt.process_receipt(uploaded_file)
-                #receipt_productvalues = ocr.process_receipt(image)
-                # write the boxed image and the recognized products and prices into a ...?
-                #receipt_value_dict[uploaded_file.name] = [receipt_productvalues, image_boxed]
-                #Beispielprodukte = ['Produkt1', 'Produkt2', 'Produkt3'] #example values
-                #Beispielpreise = [1.99, 2.89, 3.79]         # example values
-                #filename_column = [str(uploaded_file.name)] * len(Beispielprodukte)
-                #df_receipt = pd.DataFrame()
+                # write the receipt-text-df and the boxed-image into the dictionary
                 receipt_value_dict[uploaded_file.name] = [df_sorted, image_boxed]
+    # return the dictionary            
     return receipt_value_dict            
 
 
 
-
-#def decoded_data ():
- #   pass
-
-
-
 # make 2 tabs
-tab_Input, tab_Output = st.tabs(["Input", "Output"])
+tab_Input, tab_Output, tab_Context = st.tabs(["Input", "Output", "Contextualized"])
+
 
 with tab_Input:
     # make 2 columns on tab "Input"
     col_load_files, col_img= st.columns(2)
 
-# On column "Input":
+# On column "Load files":
 with col_load_files:
     st.subheader("Load receipt-files")
     #st.text("   ") #to alignt the widget with the next column
@@ -88,9 +70,6 @@ with col_load_files:
 # On column "image"
 with col_img:
     st.subheader("Receipts preview")
-    # create a variable to save the selected image
-   # selected_image = None
-
     if uploaded_files:
         # create a Selectbox for the image to be shown
         selected_file_name = st.selectbox("Select an image of a receipt to be shown",\
@@ -119,7 +98,7 @@ with tab_Output:
 
     # predefine the file selection list to avoid an error
     selected_files_output = []
-
+    button = st.button('accept changes', key='top')
     if not uploaded_files:
         # if no files were uploaded prompt the user to do that
         st.markdown('<p style="color:red;">Upload image-files on tab "Input" first before receipt output could be shown!</p>', unsafe_allow_html=True)
@@ -142,7 +121,8 @@ with tab_Output:
     if selected_files_output:
         liste_df = []
         c = st.container()
-        for file_ocr in selected_files_output:
+        for file_ocr in selected_files_output: 
+            # TODO: loop for df must be over all = uploaded_files. diplay for-loop should stay at selected_files
              
             # make 2 columns on tab "Output"
             col_ocr_data, col_ocr_image = c.columns(2)
@@ -183,16 +163,30 @@ with tab_Output:
                     #for file_ocr in selected_files_output:
                     st.image(receipt_value_dict[file_ocr][1], caption=file_ocr, use_column_width=True)
 
-# submit button
-button = st.button('accept changes', key='bottom')
-if button == True:
-    st.write('Der Button wurde gedrückt!')  
+    # combine all dataframe in the list into a combined dataframe
+    combined_df = pd.concat(liste_df, ignore_index=True)      
+    #st.dataframe(combined_df, height=(combined_df.shape[0]*37+21))    
+
+    # submit button
+    button = st.button('accept changes', key='bottom')
+    response_df = None
+    if button == True:
+        st.write('Start contextualising : :nerd_face:')  
+        with st.status('generating names and categories'):
+            categories_rewe = llm.get_rewe_categories()
+            product_list = combined_df.product_abbr.to_list()
+            st.write(product_list)
+            response_list = []
+            for item in product_list:
+                st.write(f'processing {item}')
+                response_js = llm.process_abbr_item(item, categories_rewe)   
+                response_list.append(response_js)
+            response_df = pd.DataFrame(response_list)    
 
 
-# combine all dataframe in the list into a combined dataframe
-combined_df = pd.concat(liste_df, ignore_index=True)      
-st.dataframe(combined_df, height=(combined_df.shape[0]*37+21))                
-
-  
+with tab_Context:
+    st.subheader("Contextualized Receipts")
+    if response_df is not None:
+        st.table(response_df)
    
         
