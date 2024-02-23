@@ -1,3 +1,10 @@
+'''
+recognized text blocks of the receipt with Google Vision
+takes an image variable (----and a filename----)
+returns as dataframe with productnames and prices (----per filename----)
+'''
+
+
 # import libraries
 import os
 from dotenv import load_dotenv
