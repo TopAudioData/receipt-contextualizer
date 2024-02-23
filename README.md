@@ -114,7 +114,7 @@ There is no constraint between runs to have the same metadata tracked. I.e. for 
 
 1. Install [Docker](https://www.docker.com/get-started/)
 1. Install postgresql@14 `brew install postgresql@14`
-1. Run in terminal: `docker build -t postgres .`
+1. `cd` into this repo and enter: `docker build -t postgres .`
 1. Run in terminal: 
 
 ```bash
