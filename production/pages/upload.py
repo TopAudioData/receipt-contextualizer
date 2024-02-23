@@ -19,6 +19,25 @@ import time
 from io import StringIO
 from PIL import Image, ImageDraw
 
+# Page config
+st.set_page_config(
+    page_title="Receipt contextualizer • Home",
+    page_icon=":nerd_face:",
+    layout="wide",
+    initial_sidebar_state="expanded"
+    )
+
+
+# Page navigation
+st.sidebar.title('Receipt :receipt::nerd_face::bar_chart: Contextualizer')
+st.sidebar.page_link('home.py', label='Home', icon='📊')
+st.sidebar.page_link('pages/search.py', label='Search', icon='🔎')
+st.sidebar.page_link('pages/upload.py', label='Upload', icon='🧾')
+st.sidebar.page_link('pages/data.py', label='Data', icon='🗄️')
+st.sidebar.page_link('pages/visualization.py', label='Explainer', icon='🤯')
+
+
+
 st.title('Upload')
 
 # read_receipt function is cached, because it takes long
@@ -169,7 +188,16 @@ with tab_Output:
 
     # submit button
     button = st.button('accept changes', key='bottom')
-    response_df = None
+
+    @st.cache_data
+    def write_response_to_df(df=None):
+        if df == None:
+            df = None
+        else:
+            df = pd.DataFrame(response_list)
+        return df
+    response_df = write_response_to_df() 
+
     if button == True:
         st.write('Start contextualising : :nerd_face:')  
         with st.status('generating names and categories'):
@@ -181,12 +209,14 @@ with tab_Output:
                 st.write(f'processing {item}')
                 response_js = llm.process_abbr_item(item, categories_rewe)   
                 response_list.append(response_js)
-            response_df = pd.DataFrame(response_list)    
+            
+                response_df = write_response_to_df(response_list)
+            
 
 
 with tab_Context:
     st.subheader("Contextualized Receipts")
     if response_df is not None:
         st.table(response_df)
-   
+    st.button('Submit', type='primary')
         
