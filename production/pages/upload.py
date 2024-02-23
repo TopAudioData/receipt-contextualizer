@@ -8,7 +8,7 @@ returns a dataframe with the product name, prices and filenames of the receipts 
 import streamlit as st
 import process_ocr as ocr
 import make_boxes as mabo
-
+import read_receipt 
 
 
 from altair import DerivedStream
@@ -21,11 +21,36 @@ from PIL import Image, ImageDraw
 
 st.title('Upload')
 
+# Funtion to make boxes around the textblocks on the receipt
+# should be cached to prevent repeated call
+#@st.cache_data
+#def cached_render_doc_text(image):
+#    return mabo.render_doc_text(image)
 
-#def on_button_click():
- #   st.write('Der Button wurde gedrückt!')
 
-#button = st.button('Drück mich', on_click=on_button_click)
+@st.cache_data
+def create_receipt_value_dict(uploaded_files):
+    receipt_value_dict = {}
+    # find the selected image-FILE
+    for uploaded_file in uploaded_files: # look at every file
+        # check if the iterated FILE matchs the selected file-NAME
+                # open the image
+                #image = Image.open(uploaded_file)
+                # give the image to the function to make boxes
+                #image_boxed = mabo.render_doc_text(uploaded_file)
+                df_sorted, image_boxed = read_receipt.process_receipt(uploaded_file)
+                #receipt_productvalues = ocr.process_receipt(image)
+                # write the boxed image and the recognized products and prices into a ...?
+                #receipt_value_dict[uploaded_file.name] = [receipt_productvalues, image_boxed]
+                #Beispielprodukte = ['Produkt1', 'Produkt2', 'Produkt3'] #example values
+                #Beispielpreise = [1.99, 2.89, 3.79]         # example values
+                #filename_column = [str(uploaded_file.name)] * len(Beispielprodukte)
+                #df_receipt = pd.DataFrame()
+                receipt_value_dict[uploaded_file.name] = [df_sorted, image_boxed]
+    return receipt_value_dict            
+
+
+
 
 #def decoded_data ():
  #   pass
@@ -48,7 +73,6 @@ with col_load_files:
                                        type=['jpg', 'png', 'bmp', 'pcx', 'tif'], \
                                           accept_multiple_files=True, )
     
-    
     if uploaded_files:
         st.subheader("The following files will be processed:")
         st.markdown("To deselect a file (if it was uploaded by mistake), use the 'x' at the filename from the file-upload above.")
@@ -70,7 +94,7 @@ with col_img:
     if uploaded_files:
         # create a Selectbox for the image to be shown
         selected_file_name = st.selectbox("Select an image of a receipt to be shown",\
-                                              file_names, key='preview')
+                                              file_names)
     
         # find the selected image-file and show the image
         for uploaded_file in uploaded_files:
@@ -84,66 +108,91 @@ with col_img:
     else:
         st.markdown('<p style="color:red;">Upload image-files on tab "Input" first before receipt output could be shown!</p>', unsafe_allow_html=True)
 
+
+
+
 with tab_Output:
+
+    # make ocr and boxed-images of all uploaded receipts, function is cached
+    receipt_value_dict =create_receipt_value_dict(uploaded_files)
+    #st.write(receipt_value_dict)
+
     # predefine the file selection list to avoid an error
-    selected_files_ocr = []
+    selected_files_output = []
 
     if not uploaded_files:
         # if no files were uploaded prompt the user to do that
         st.markdown('<p style="color:red;">Upload image-files on tab "Input" first before receipt output could be shown!</p>', unsafe_allow_html=True)
     else:  
         # create a Selectbox for the image to be shown
-        selected_files_ocr = st.multiselect("Select one ore more receipt to be shown", \
-                                        ["all"]+file_names, key='ocr_output')
+        selected_files_output = st.multiselect("Select one ore more receipt to be shown", \
+                                        ["all"]+file_names)
         # check if "all" was selected or there was no selection
-        if "all" in selected_files_ocr or not selected_files_ocr:
+        if "all" in selected_files_output or not selected_files_output:
             # then take alle filenames (without "all")
-            selected_files_ocr = file_names
+            selected_files_output = file_names
         else:
             # remove double entries
-            selected_files_ocr = list(set(selected_files_ocr))
-        st.text(selected_files_ocr)
+            selected_files_output = list(set(selected_files_output))
+        st.text(selected_files_output)
+
+   
 
     # Show the recognized products and the preview only if files are selected
-    if selected_files_ocr:
-         # make 2 columns on tab "Output"
-        col_ocr_data, col_ocr_image = st.columns(2)
+    if selected_files_output:
+        liste_df = []
+        c = st.container()
+        for file_ocr in selected_files_output:
+             
+            # make 2 columns on tab "Output"
+            col_ocr_data, col_ocr_image = c.columns(2)
 
-        # On column "ocr_data" = "recognized products on the receipt:"
-        with col_ocr_data:
-            st.subheader("recognized products on the receipt:")
-            # find the selected image-file-NAMES
-            for file_ocr in selected_files_ocr:
-                # find the selected image-FILE
-                for uploaded_file in uploaded_files: # look at every file
-                    # check if the iterated FILE matchs the selected file-NAME
-                    if uploaded_file.name == file_ocr:
-                        # open the image 
-                        image = Image.open(uploaded_file)
-                        # give the image to the function to make ocr and return products
-                        #df_receipt = ocr.process_receipt(image)
-                        st.image(image, caption=uploaded_file.name, use_column_width=True)
-        # function
-        #decoded_data()
-                            
+            # On column "ocr_data" = "tabel recognized products on the receipt:"
+            with col_ocr_data:
+                st.subheader("recognized products on the receipt:")
+                #df_output = pd.DataFrame
+    #   for receipt, (product, price, image_boxed) in receipt_value_dict:
+            #   if receipt in selected_files_output:
+            #          for product, price in zip(product, price):
+               # for file_ocr in selected_files_output:           #df_output.append({'receipt': receipt, 'product': })
+                st.write(file_ocr)
+                include_on = st.toggle('Activate to include', value=True, key=file_ocr)
+                if include_on:
+                    st.write('Receipt counted')
+                else:
+                    st.write('Receipt excluded')
+                df = st.data_editor(receipt_value_dict[file_ocr][0],
+                               height=(receipt_value_dict[file_ocr][0].shape[0]*37+21),
+                               column_config={
+                               'date': st.column_config.DateColumn('Date', format='DD.MM.YYYY'),
+                               'product_abbr': 'Name on receipt',
+                               'receipt_id': 'ID',
+                               'price': st.column_config.NumberColumn('Price', format='%.2f €')}, 
+                               hide_index=True)      
+                if include_on == True:
+                    liste_df.append(df) 
+               
 
-        # On column "ocr_image" = "preview of the products on the receipt:"
-        with col_ocr_image:
-            st.subheader("preview of the products on the receipt:")
-            # find the selected image-file-NAMES
-            for file_ocr in selected_files_ocr:
-                    # find the selected image-FILE
-                    for uploaded_file in uploaded_files: # look at every file
-                        # check if the iterated FILE matchs the selected file-NAME
-                        if uploaded_file.name == file_ocr:
-                            # set the size of the image relativ to column width
-                            col_a, col_b, cl_c= st.columns([1, 8 ,1])
-                            with col_b:
-                                # open the image
-                                image = Image.open(uploaded_file)
-                                # give the image to the function to make boxes
-                                image_boxed = mabo.render_doc_text(image)
-                                # show the image with boxes
-                                st.image(image_boxed, caption=uploaded_file.name, use_column_width=True)
+            # On column "ocr_image" = "preview of the products on the receipt:"
+            with col_ocr_image:
+                st.subheader("preview of the products on the receipt:")
+                # set the size of the image relativ to column width
+                col_a, col_b, cl_c= st.columns([1, 8 ,1])
+                with col_b:
+                    # find the selected image-file-NAMES
+                    #for file_ocr in selected_files_output:
+                    st.image(receipt_value_dict[file_ocr][1], caption=file_ocr, use_column_width=True)
 
+# submit button
+button = st.button('accept changes', key='bottom')
+if button == True:
+    st.write('Der Button wurde gedrückt!')  
+
+
+# combine all dataframe in the list into a combined dataframe
+combined_df = pd.concat(liste_df, ignore_index=True)      
+st.dataframe(combined_df, height=(combined_df.shape[0]*37+21))                
+
+  
+   
         

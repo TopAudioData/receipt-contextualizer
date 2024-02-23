@@ -8,20 +8,51 @@ from datetime import datetime
 from scipy.signal import argrelmin, argrelmax
 import re
 from PIL import Image, ImageDraw
+import io
 
-SA_KEY=os.getenv("GOOGLE_SA_KEY")
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = SA_KEY
-
+# set path of the skript as currrent path
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+# path .env file if skript is in subfolder
+env_path = '../.env'
+# check if path is valid / .env is a file
+if os.path.isfile(env_path):
+    # load .env file
+    load_dotenv(dotenv_path=env_path)
+else: # if path is not vaild / -env is not a file
+    env_path = './.env' # try if skript is in main path of the repository
+    # check if path is now valid / .env is a file
+    if os.path.isfile(env_path):
+         # load .env file
+        load_dotenv(dotenv_path=env_path)
+    else: # if both paths don't work
+        print(".env file not found")
+# get path to SA_key from .env-file
+sa_key_path = os.getenv("GOOGLE_SA_KEY")
+# Check if path to SA_key is valid
+if os.path.isfile(sa_key_path):
+    # use the SA_key if path is valid
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = sa_key_path
+else:
+    sa_key_path = sa_key_path[1:]
+    # Check if path to SA_key is valid
+    if os.path.isfile(sa_key_path):
+        # use the SA_key if path is valid
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = sa_key_path
+    else: # if both paths don't work
+        print(" SA_key file not found")
 
 # Googles OCR function
-def detect_text(image_or_path):
+def detect_text(image):
     """Detects text in the file."""
     from google.cloud import vision
 
     client = vision.ImageAnnotatorClient()
 
-    with open(image_or_path, "rb") as image_file:
-        content = image_file.read()
+   # with open(image_or_path, "rb") as image_file:
+    #    content = image_file.read()
+    byte_arr = io.BytesIO()
+    image.save(byte_arr, format='JPEG') #TODO: test if it works with *.png
+    content = byte_arr.getvalue()
 
     image = vision.Image(content=content)
 
@@ -70,7 +101,7 @@ def draw_boxes(image, bounds, color):
 # on the receipt from the individual bounding boxes (detect_text() finds single
 # words and the corresponding bounding boxes, but is unable to recognize the lines/rows
 #of a receipt)
-def process_receipt(path,filename):
+def process_receipt(uploaded_file):
     '''
     This function takes an image as input and creates a dataframe that contains
     information about the product names and the amount of money that was spent
@@ -79,11 +110,11 @@ def process_receipt(path,filename):
     path - directory where the receipt is located
     filename - filename of the receipt
     '''
-
-    # Apply function to an receipt
-    response = detect_text(join(path,filename))
     # create image instance
-    image = Image.open(join(path,filename))
+    image = Image.open(uploaded_file)
+    # Apply function to an receipt
+    response = detect_text(image)
+   
 
     # The text_annotations contain the recognized text and the corresponding bounding boxes
     # the first entry contains the whole text from the receipt and the consecutive entries
@@ -183,6 +214,8 @@ def process_receipt(path,filename):
             position = match.start()
             # residual string starting from the position of the matched pattern
             res_str = input_str[-position:]
+        else:
+            res_str = input_str
 
         return res_str
 
@@ -210,7 +243,7 @@ def process_receipt(path,filename):
     df_sorted.rename(columns={'String':'product_abbr'},inplace=True)
 
     # add filename and date to the df
-    df_sorted['receipt_id'] = filename
+    df_sorted['receipt_id'] = uploaded_file.name
     df_sorted['date'] = date_dt
 
     image_boxed = draw_boxes(image,bounds,'blue')
