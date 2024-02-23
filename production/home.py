@@ -26,7 +26,6 @@ st.sidebar.page_link('pages/upload.py', label='Upload', icon='🧾')
 st.sidebar.page_link('pages/data.py', label='Data', icon='🗄️')
 st.sidebar.page_link('pages/visualization.py', label='Explainer', icon='🤯')
 st.sidebar.divider()
-st.sidebar.write('Tweak the dashboard')
 
 #Get receipts data from database
 df = db.data()
@@ -41,6 +40,7 @@ column_names = {
     'category_sub':'Kind',
     'embedding':'Semantic coordinates'
 }
+color_scale = px.colors.qualitative.Alphabet
 
 # For prototype: insert dates
 receipt_ids =   ['Rewe_1.jpg', 'Rewe_2.jpg', 'Rewe_3.jpg', 'Rewe_4.jpg', 'Rewe_5.jpg', 'Rewe_6.jpg', 'Rewe_7.jpg', 'Rewe_8.jpg', 'Rewe_9.jpg', 'Rewe_10.jpg', 'Rewe_11.jpg', 'Rewe_12.jpg', 'Rewe_13.jpg', 'Rewe_14.jpg']
@@ -54,7 +54,8 @@ df = df.join(df_dates.set_index('receipt_id'), on='receipt_id')
 # Options for dashboard
 
 # Show subcategories
-toggle_subcategories = st.sidebar.toggle('I need details :tea: :teapot:')
+
+toggle_subcategories = st.sidebar.toggle(':eyes: I need details!')
 
 # Select timeframe
 df_timeframe = [df.receipt_date.min().date(), df.receipt_date.max().date()]
@@ -98,38 +99,6 @@ with metric3:
 
 
 
-# Choose with toggle if subcategories are colored in
-if not toggle_subcategories:
-    #
-    # Show h-bar of categories
-    #
-    fig = px.bar(df.rename(columns=column_names),
-                x='Price', y='Category', 
-                hover_data=['Name'], # TODO:hoverdata
-                orientation='h')
-    fig.update_traces(hovertemplate='%{x} €')
-    fig.update_layout(
-        yaxis = {"categoryorder":"total ascending"},
-        xaxis_title="Sum of expenses in €")
-
-    st.plotly_chart(fig, use_container_width=True)
-else:
-    #
-    # H-bar chart with subcategories
-    #
-    fig = px.bar(df.rename(columns=column_names), 
-                x='Price', y='Category', 
-                color='Kind', 
-                hover_data=['Kind', 'Name', 'Price'],
-                orientation='h')
-    #fig.update_traces(hovertemplate='%{x} €') # TODO: hovertemplate '%{Kind}: {Price}' fails
-    fig.update_layout(
-        yaxis = {"categoryorder":"total ascending"},
-        xaxis_title="Sum of expenses in €",
-        showlegend=False)
-
-    st.plotly_chart(fig, use_container_width=True)
-
 
 
 
@@ -162,6 +131,7 @@ if aggregate_state == 'day':
         fig = px.bar(df.rename(columns=column_names).sort_values(by='Date'), 
                         x='Date', y='Price',
                         color='Category',
+                        color_discrete_sequence=color_scale,
                         hover_data=['Kind', 'Name', 'Name on receipt'])
         fig.update_layout(
                 yaxis_title="Sum of receipts in €",
@@ -180,7 +150,7 @@ elif aggregate_state == 'month':
             histfunc="sum")
         fig.update_traces(xbins_size="M1")
         fig.update_xaxes(ticklabelmode="period", dtick="M1", tickformat="%b\n%Y")
-        fig.update_layout(bargap=0.1, yaxis_title='Sum of expenses in €')
+        fig.update_layout(bargap=0.1, yaxis_title='Sum of expenses in €', xaxis_title='')
         st.plotly_chart(fig, use_container_width=True)
     else:
         #
@@ -192,26 +162,90 @@ elif aggregate_state == 'month':
             y="Price", 
             histfunc="sum",
             color='Category',
+            color_discrete_sequence=color_scale,
             hover_data=['Kind', 'Name', 'Name on receipt'])
         fig.update_traces(xbins_size="M1")
         fig.update_xaxes(ticklabelmode="period", dtick="M1", tickformat="%b\n%Y")
-        fig.update_layout(bargap=0.1, yaxis_title='Sum of expenses in €', showlegend=False)
+        fig.update_layout(bargap=0.1, yaxis_title='Sum of expenses in €', xaxis_title='', showlegend=False)
         st.plotly_chart(fig, use_container_width=True)
 
-        # Display data of monthly expenses by category
-        # Group by Month, put categories as rows, months as col
-        df_monthly = (df.set_index('receipt_date')
-                      .groupby([pd.Grouper(freq='M'), 'category_main'])
-                      .price.sum().unstack().fillna(0).T)
-        # Prettify with formatting the months as Jan 24
-        df_monthly.columns = [x.strftime('%b %Y') for x in df_monthly.columns.to_list()]
-        # Delete index name
-        df_monthly.index.rename(None, inplace=True)
-        # Prettify with formatting all number cols as currency
-        df_monthly = df_monthly.style.format(dict.fromkeys(df_monthly.select_dtypes(include='number').columns.tolist(), '{:.2f} €'))
-        
+        with st.expander('Tables…',):
+            # Display data of monthly expenses by category
+            # Group by Month, put categories as rows, months as col
 
-        st.dataframe(df_monthly)
+            #
+            #   Table with sum per main category
+            #
+            st.write('Sums of product **main categories** per month')
+            df_monthly = (df.set_index('receipt_date')
+                        .groupby([pd.Grouper(freq='M'), 'category_main'])
+                        .price.sum().unstack().fillna(0).T)
+            # Prettify with formatting the months as Jan 24
+            df_monthly.columns = [x.strftime('%b %Y') for x in df_monthly.columns.to_list()]
+            # Delete index name
+            df_monthly.index.rename(None, inplace=True)
+            # Prettify with formatting all number cols as currency
+            df_monthly = df_monthly.style.format(dict.fromkeys(df_monthly.select_dtypes(include='number').columns.tolist(), '{:.2f} €'))
+        
+            st.dataframe(df_monthly)
+
+            #
+            #   Table with sum per subcategory
+            #
+            st.write('Sums of product **subcategories** per month')
+            df_monthly_sub = (df.set_index('receipt_date')
+                        .groupby([pd.Grouper(freq='M'), 'category_sub'])
+                        .price.sum().unstack().fillna(0).T)
+            # Prettify with formatting the months as Jan 24
+            df_monthly_sub.columns = [x.strftime('%b %Y') for x in df_monthly_sub.columns.to_list()]
+            # Delete index name
+            df_monthly_sub.index.rename(None, inplace=True)
+            # Prettify with formatting all number cols as currency
+            df_monthly_sub = df_monthly_sub.style.format(dict.fromkeys(
+                df_monthly_sub.select_dtypes(include='number').columns.tolist(), 
+                '{:.2f} €'))
+            
+            st.dataframe(df_monthly_sub)
+
+
+
+# Choose with toggle if subcategories are colored in
+if not toggle_subcategories:
+    #
+    # Show h-bar of categories
+    #
+    fig = px.bar(df.rename(columns=column_names),
+                x='Price', y='Category', 
+                hover_data=['Name'], # TODO:hoverdata
+                orientation='h',
+                )
+    #fig.update_traces(hovertemplate='%{x} €')
+    fig.update_layout(
+        yaxis = {"categoryorder":"total ascending"},
+        xaxis_title="Sum of expenses in €")
+
+    st.plotly_chart(fig, use_container_width=True)
+else:
+    #
+    # H-bar chart with subcategories
+    #
+
+    fig = px.bar(df.rename(columns=column_names), 
+                x='Price', y='Category', 
+                color='Kind', 
+                color_discrete_sequence=color_scale,
+                hover_data=['Kind', 'Name', 'Price'],
+                orientation='h')
+    #fig.update_traces(hovertemplate='%{x} €') # TODO: hovertemplate '%{Kind}: {Price}' fails
+    #fig.update_traces(color=color_scale)
+    fig.update_layout(
+        yaxis = {"categoryorder":"total ascending"},
+        xaxis_title="Sum of expenses in €",
+        showlegend=False)
+
+
+    st.plotly_chart(fig, use_container_width=True)
+
 
 if False:
     # Show all data and edit data in expander
