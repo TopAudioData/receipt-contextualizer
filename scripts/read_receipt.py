@@ -1,11 +1,13 @@
 # import libraries
 import os
+from os.path import join
 from dotenv import load_dotenv
 import pandas as pd
 import numpy as np
 from datetime import datetime
 from scipy.signal import argrelmin, argrelmax
 import re
+from PIL import Image, ImageDraw
 
 SA_KEY=os.getenv("GOOGLE_SA_KEY")
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = SA_KEY
@@ -32,6 +34,37 @@ def detect_text(image_or_path):
             )
     return response
 
+# function that draws the bounding boxes on the passed receipt
+def draw_boxes(image, bounds, color):
+    """Draws a border around the image using the hints in the vector list.
+
+    Args:
+        image: the input image object.
+        bounds: list of coordinates for the boxes.
+        color: the color of the box.
+
+    Returns:
+        An image with colored bounds added.
+    """
+    draw = ImageDraw.Draw(image)
+
+    for bound in bounds:
+        draw.polygon(
+            [
+                bound.vertices[0].x,
+                bound.vertices[0].y,
+                bound.vertices[1].x,
+                bound.vertices[1].y,
+                bound.vertices[2].x,
+                bound.vertices[2].y,
+                bound.vertices[3].x,
+                bound.vertices[3].y,
+            ],
+            None,
+            color, width=3
+        )
+    return image
+
 
 # Main function that uses the detect_text() function and recreates the rows
 # on the receipt from the individual bounding boxes (detect_text() finds single
@@ -49,19 +82,39 @@ def process_receipt(path,filename):
 
     # Apply function to an receipt
     response = detect_text(join(path,filename))
+    # create image instance
+    image = Image.open(join(path,filename))
 
     # The text_annotations contain the recognized text and the corresponding bounding boxes
     # the first entry contains the whole text from the receipt and the consecutive entries
     # contain the text/coordinates from the individual bounding boxes
     texts = response.text_annotations
 
+    # define helper function to search for the date string in the recognized text on the receipt
+    def find_date(input_string):
+        # define the date pattern in the format 'TT.MM.YYYY' and include possible whitespaces
+        date_pattern = r'\b\d{2}\.\s?\d{2}\.\s?\d{4}\b'
+        # search for pattern in input_string
+        found = re.search(date_pattern, input_string)
+        # Check if date was found
+        if found:
+            return found.group(0)
+        else:
+            return "Date not found"
+
+    # store date as string and datetime variable   
+    date = find_date(texts[0].description).replace(' ','')
+    date_dt = datetime.strptime(date,'%d.%m.%Y').date()
+
     # Build dataframe, where bl: bottom_left, br: bottom_right, tr: top_right, tl: top_left
     # denote the corners of the BBs
     columns = ["String", "x_bl", "y_bl", "x_br", "y_br","x_tr","y_tr","x_tl","y_tl"] 
     df = pd.DataFrame(columns=columns)
+    bounds = []
 
     for i, text in enumerate(texts[1:]):
         df.loc[i, "String"] = text.description
+        bounds.append(text.bounding_poly) # extract all BB coords and write them in list
         for j in range(4):
             df.iloc[i,2*j+1] = text.bounding_poly.vertices[j].x  
             df.iloc[i,2*j+2] = text.bounding_poly.vertices[j].y  
@@ -158,6 +211,9 @@ def process_receipt(path,filename):
 
     # add filename and date to the df
     df_sorted['receipt_id'] = filename
-    df_sorted['processing_date'] = datetime.today().strftime('%d-%m-%Y')
+    df_sorted['date'] = date_dt
 
-    return df_sorted
+    image_boxed = draw_boxes(image,bounds,'blue')
+
+
+    return df_sorted, image_boxed
