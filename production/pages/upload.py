@@ -6,20 +6,17 @@ returns a dataframe with the product name, prices and filenames of the receipts 
 
 
 import streamlit as st
-import process_ocr as ocr
-import make_boxes as mabo
+import pandas as pd
+import numpy as np
+from PIL import Image, ImageDraw
+
+
 import read_receipt 
 import process_llm as llm
 
-from altair import DerivedStream
-import streamlit as st
-import pandas as pd
-import numpy as np
-import time
-from io import StringIO
-from PIL import Image, ImageDraw
 
-# Page config
+
+# Set page configuration
 st.set_page_config(
     page_title="Receipt contextualizer • Home",
     page_icon=":nerd_face:",
@@ -47,7 +44,7 @@ st.sidebar.page_link('pages/visualization.py', label='Explainer', icon='🤯')
 
 
 
-st.title('Upload')
+st.title('Receipt upload')
 
 # read_receipt function is cached, because it takes long
 @st.cache_data
@@ -146,8 +143,8 @@ with tab_Output:
    
 
     # Show the recognized products and the preview only if files are selected
+    liste_df = []
     if selected_files_output:
-        liste_df = []
         c = st.container()
         for file_ocr in selected_files_output: 
             # TODO: loop for df must be over all = uploaded_files. diplay for-loop should stay at selected_files
@@ -190,20 +187,21 @@ with tab_Output:
                     # find the selected image-file-NAMES
                     #for file_ocr in selected_files_output:
                     st.image(receipt_value_dict[file_ocr][1], caption=file_ocr, use_column_width=True)
+    
+    if len(liste_df) > 0:
+        # combine all dataframe in the list into a combined dataframe
+        combined_df = pd.concat(liste_df, ignore_index=True)      
+        #st.dataframe(combined_df, height=(combined_df.shape[0]*37+21))    
 
-    # combine all dataframe in the list into a combined dataframe
-    combined_df = pd.concat(liste_df, ignore_index=True)      
-    #st.dataframe(combined_df, height=(combined_df.shape[0]*37+21))    
-
-    # submit button
-    button = st.button('accept changes', key='bottom')
+        # submit button
+        button = st.button('accept changes', key='bottom')
 
     @st.cache_data
     def write_response_to_df(df=None):
-        if df == None:
-            df = None
+        if df == None:          
+            df = None       #TODO: Check if this code is nonsense
         else:
-            df = pd.DataFrame(response_list)
+            df = pd.DataFrame(response_list) #TODO: where comes responselist into the function?
         return df
     response_df = write_response_to_df() 
 
@@ -225,7 +223,11 @@ with tab_Output:
 
 with tab_Context:
     st.subheader("Contextualized Receipts")
-    if response_df is not None:
-        st.table(response_df)
-    st.button('Submit', type='primary')
+    if not uploaded_files:
+        # if no files were uploaded prompt the user to do that
+        st.markdown('<p style="color:red;">Upload image-files on tab "Input" first before contextualized receipt output could be shown!</p>', unsafe_allow_html=True)
+    else:
+        if response_df is not None:
+            st.table(response_df)
+        st.button('Submit', type='primary')
         
