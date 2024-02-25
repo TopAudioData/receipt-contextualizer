@@ -25,6 +25,15 @@ st.set_page_config(
     initial_sidebar_state="expanded"
     )
 
+# Hide streamlit menu
+hide_streamlit_style = """
+<style>
+#MainMenu {visibility: hidden;}
+#root > div:nth-child(1) > div.withScreencast > div > div > header {visibility: hidden;}
+footer {visibility: hidden;}
+</style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
 # Page navigation
 st.sidebar.title('Receipt :receipt::nerd_face::bar_chart: Contextualizer')
@@ -50,7 +59,7 @@ with col1:
     query_user_input = st.text_input(
         'Semantic search', placeholder='Use your own words…', value=None)
     # Select number of results
-    n_results = st.slider('Number of search results', value=10)
+    n_results = st.slider('Number of search results', value=16)
     
     subcol1, subcol2 = st.columns([1,3])
     with subcol1:
@@ -70,13 +79,19 @@ with col1:
 
 if query_results is not None:
     if query_table == 'rewe':
-        st.table(query_results.drop('embedding', axis=1)
-                .rename(columns=COLUMN_NAMES)[['Name', 'Price', 'Category']]
-                .style.format({'Price':'{:.2f} €'}))
+        st.dataframe(query_results.drop('embedding', axis=1)
+                .rename(columns=COLUMN_NAMES)[['Name', 'Price', 'Category']], 
+                column_config={
+                     'Price': st.column_config.NumberColumn(format='%.2f €')},
+                     height=600)
+                #.style.format({'Price':'{:.2f} €'})
     elif query_table == 'receipts':
-        st.table(query_results.drop('embedding', axis=1)
-                .rename(columns=COLUMN_NAMES)[['Name', 'Name on receipt', 'Price', 'Category', 'Kind']]
-                .style.format({'Price':'{:.2f} €'}))
+        st.dataframe(query_results.drop('embedding', axis=1)
+                .rename(columns=COLUMN_NAMES)[['Name', 'Name on receipt', 'Price', 'Category', 'Kind']],
+                column_config={
+                     'Price': st.column_config.NumberColumn(format='%.2f €')},
+                     height=600)
+                #.style.format({'Price':'{:.2f} €'}))
 
 
 

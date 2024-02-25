@@ -11,6 +11,17 @@ st.set_page_config(
     initial_sidebar_state="expanded"
     )
 
+# Hide streamlit menu
+
+hide_streamlit_style = """
+<style>
+#MainMenu {visibility: hidden;}
+#root > div:nth-child(1) > div.withScreencast > div > div > header {visibility: hidden;}
+footer {visibility: hidden;}
+</style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
 # Page navigation
 st.sidebar.title('Receipt :receipt::nerd_face::bar_chart: Contextualizer')
 st.sidebar.page_link('home.py', label='Home', icon='📊')
@@ -65,19 +76,21 @@ elif len(dates) == 2: # Dashboard already updates and throws error if only one d
 full_data = st.toggle('Show :receipt::nerd_face::bar_chart: generated data')
 if full_data:
     # Show AI generated data
-    st.dataframe(df.rename(columns=column_names)
-                 [['Receipt', 'Date', 'Name on receipt', 'Price', 'Name', 'Category', 'Kind']],
+    st.dataframe(df.rename(columns=column_names).sort_values(by='Date', ascending=False)
+                 [['Date', 'Name on receipt', 'Price', 'Name', 'Category', 'Kind']], # TODO: add back in 'Receipt' after presentation
                  column_config={
                      'Date': st.column_config.DateColumn(format='DD.MM.YYYY'),
                      'Price': st.column_config.NumberColumn(format='%.2f €')},
-                     height=600)
+                     height=600,
+                     hide_index=True)
     # TODO: Embed edited entries and overwrite entry in db
     #st.button('Submit Edits', type='primary')
 else:
     # Show prettified dataframe
-    st.dataframe(df.rename(columns=column_names)
-                 [['Receipt','Date', 'Name on receipt', 'Price']],
+    st.dataframe(df.rename(columns=column_names).sort_values(by='Date', ascending=False)
+                 [['Date', 'Name on receipt', 'Price']], # TODO: add back in 'Receipt' after presentation
                  column_config={
                      'Date': st.column_config.DateColumn(format='DD.MM.YYYY'),
                      'Price': st.column_config.NumberColumn(format='%.2f €')},
-                     height=600)
+                     height=600,
+                     hide_index=True)

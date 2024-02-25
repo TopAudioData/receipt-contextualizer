@@ -18,6 +18,16 @@ st.set_page_config(
     initial_sidebar_state="expanded"
     )
 
+# Hide streamlit menu
+hide_streamlit_style = """
+<style>
+#MainMenu {visibility: hidden;}
+#root > div:nth-child(1) > div.withScreencast > div > div > header {visibility: hidden;}
+footer {visibility: hidden;}
+</style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
 # Page navigation
 st.sidebar.title('Receipt :receipt::nerd_face::bar_chart: Contextualizer')
 st.sidebar.page_link('home.py', label='Home', icon='📊')
