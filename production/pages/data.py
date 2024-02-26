@@ -70,7 +70,7 @@ if reset_dates: # Reset button will display full df
     pass 
 elif len(dates) == 2: # Dashboard already updates and throws error if only one date is chosen
     # Query df for timeframe for all visualizations on the dashboard
-    df = df.query('@dates[0] < receipt_date < @dates[-1]') 
+    df = df.query('@dates[0] <= receipt_date <= @dates[-1]') 
 
 # Show all data and edit data in expander
 

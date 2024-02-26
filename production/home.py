@@ -84,7 +84,7 @@ if reset_dates: # Reset button will display full df
     pass 
 elif len(dates) == 2: # Dashboard already updates and throws error if only one date is chosen
     # Query df for timeframe for all visualizations on the dashboard
-    df = df.query('@dates[0] < receipt_date < @dates[-1]') 
+    df = df.query('@dates[0] <= receipt_date <= @dates[-1]') 
 
 # Overview over spending at a glance
 
@@ -183,43 +183,7 @@ elif aggregate_state == 'month':
         fig.update_layout(bargap=0.1, yaxis_title='Sum of expenses in €', xaxis_title='', showlegend=False)
         st.plotly_chart(fig, use_container_width=True)
 
-        with st.expander('Tables…',):
-            # Display data of monthly expenses by category
-            # Group by Month, put categories as rows, months as col
-
-            #
-            #   Table with sum per main category
-            #
-            st.write('Sums of product **main categories** per month')
-            df_monthly = (df.set_index('receipt_date')
-                        .groupby([pd.Grouper(freq='M'), 'category_main'])
-                        .price.sum().unstack().fillna(0).T)
-            # Prettify with formatting the months as Jan 24
-            df_monthly.columns = [x.strftime('%b %Y') for x in df_monthly.columns.to_list()]
-            # Delete index name
-            df_monthly.index.rename(None, inplace=True)
-            # Prettify with formatting all number cols as currency
-            df_monthly = df_monthly.style.format(dict.fromkeys(df_monthly.select_dtypes(include='number').columns.tolist(), '{:.2f} €'))
         
-            st.dataframe(df_monthly)
-
-            #
-            #   Table with sum per subcategory
-            #
-            st.write('Sums of product **subcategories** per month')
-            df_monthly_sub = (df.set_index('receipt_date')
-                        .groupby([pd.Grouper(freq='M'), 'category_sub'])
-                        .price.sum().unstack().fillna(0).T)
-            # Prettify with formatting the months as Jan 24
-            df_monthly_sub.columns = [x.strftime('%b %Y') for x in df_monthly_sub.columns.to_list()]
-            # Delete index name
-            df_monthly_sub.index.rename(None, inplace=True)
-            # Prettify with formatting all number cols as currency
-            df_monthly_sub = df_monthly_sub.style.format(dict.fromkeys(
-                df_monthly_sub.select_dtypes(include='number').columns.tolist(), 
-                '{:.2f} €'))
-            
-            st.dataframe(df_monthly_sub)
 
 
 
@@ -259,6 +223,45 @@ else:
 
 
     st.plotly_chart(fig, use_container_width=True)
+
+
+with st.expander('Tables…',):
+    # Display data of monthly expenses by category
+    # Group by Month, put categories as rows, months as col
+
+    #
+    #   Table with sum per main category
+    #
+    st.write('Sums of product **main categories** per month')
+    df_monthly = (df.set_index('receipt_date')
+                .groupby([pd.Grouper(freq='M'), 'category_main'])
+                .price.sum().unstack().fillna(0).T)
+    # Prettify with formatting the months as Jan 24
+    df_monthly.columns = [x.strftime('%b %Y') for x in df_monthly.columns.to_list()]
+    # Delete index name
+    df_monthly.index.rename(None, inplace=True)
+    # Prettify with formatting all number cols as currency
+    df_monthly = df_monthly.style.format(dict.fromkeys(df_monthly.select_dtypes(include='number').columns.tolist(), '{:.2f} €'))
+
+    st.dataframe(df_monthly)
+
+    #
+    #   Table with sum per subcategory
+    #
+    st.write('Sums of product **subcategories** per month')
+    df_monthly_sub = (df.set_index('receipt_date')
+                .groupby([pd.Grouper(freq='M'), 'category_sub'])
+                .price.sum().unstack().fillna(0).T)
+    # Prettify with formatting the months as Jan 24
+    df_monthly_sub.columns = [x.strftime('%b %Y') for x in df_monthly_sub.columns.to_list()]
+    # Delete index name
+    df_monthly_sub.index.rename(None, inplace=True)
+    # Prettify with formatting all number cols as currency
+    df_monthly_sub = df_monthly_sub.style.format(dict.fromkeys(
+        df_monthly_sub.select_dtypes(include='number').columns.tolist(), 
+        '{:.2f} €'))
+    
+    st.dataframe(df_monthly_sub)
 
 
 if False:
