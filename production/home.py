@@ -29,7 +29,11 @@ footer {visibility: hidden;}
 st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
 # Page navigation
-st.sidebar.title('Receipt :receipt::nerd_face::bar_chart: Contextualizer')
+#logo, title = st.sidebar.columns([2,5])
+#with logo:
+st.sidebar.image('receipt_logo3.png', use_column_width='always')
+#with title:
+#    st.title('Receipt :receipt::nerd_face::bar_chart: Contextualizer')
 st.sidebar.page_link('home.py', label='Home', icon='📊')
 st.sidebar.page_link('pages/search.py', label='Search', icon='🔎')
 st.sidebar.page_link('pages/upload.py', label='Upload', icon='🧾')
