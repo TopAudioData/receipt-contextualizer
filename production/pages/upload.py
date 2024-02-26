@@ -28,7 +28,8 @@ def create_receipt_value_dict(uploaded_files):
                 df_sorted, image_boxed = read_receipt.process_receipt(uploaded_file)
                 # Write the receipt-text-df, the boxed-image into the dictionary and the label to take this receipt into account
                 receipt_value_dict[uploaded_file.name] = [df_sorted, image_boxed, True]
-    # Return the dictionary            
+    # Return the dictionary 
+    print('function create_receipt_value_dict was running')           
     return receipt_value_dict    
 
 
@@ -119,21 +120,21 @@ with col_img:
 
 
 with tab_Output:
-
+    if uploaded_files:
     # Perform OCR and create boxed-images of all uploaded receipts, function is cached
-    receipt_value_dict =create_receipt_value_dict(uploaded_files)
+        receipt_value_dict =create_receipt_value_dict(uploaded_files)
     #st.write(receipt_value_dict)
 
     # Predefine the file selection list to avoid an error
     selected_files_output = []
-    button = st.button('accept changes', key='top')
+    button = st.button('Accept changes', key='top', type='primary')
     if not uploaded_files:
         # If no files were uploaded prompt the user to do that
         st.markdown('<p style="color:red;">Upload image-files on tab "Input" first before receipt output could be shown!</p>', unsafe_allow_html=True)
     else:  
         # Create a Selectbox for the image to be shown
-        selected_files_output = st.multiselect("Select one ore more receipt to be shown", \
-                                        ["all"]+file_names)
+        #selected_files_output = st.multiselect("Select one ore more receipt to be shown", \
+                                     #   ["all"]+file_names)
         # Check if "all" was selected or there was no selection
         if "all" in selected_files_output or not selected_files_output:
             # tTen take alle filenames (without "all")
@@ -141,67 +142,62 @@ with tab_Output:
         else:
             # Remove double entries
             selected_files_output = list(set(selected_files_output))
-        st.text(selected_files_output)
+        #st.text(selected_files_output)
 
    
 
     # Show the recognized products and the preview only if files are selected
     liste_df = []
-    # Dictionary to store the user's selection
-    receipt_include_dict = {}
+   
 
 
-
+    count = 0
     if selected_files_output:
         c = st.container()
-        for file_ocr in selected_files_output: 
+        for uploaded_file_name in receipt_value_dict:  # type: ignore
             # TODO: loop for df must be over all = uploaded_files. diplay for-loop should stay at selected_files
-                
+            count +=1
+            print('for-loop file_ocr was running:' + str(uploaded_file_name) + str(count) )     
             # make 2 columns on tab "Output"
             col_ocr_data, col_ocr_image = c.columns(2)
             # On column "ocr_data" = "table recognized products on the receipt:"
             with col_ocr_data:
-                st.subheader("recognized products on the receipt:")
-                st.write(file_ocr)
+                if uploaded_file_name in selected_files_output:
+                    st.subheader("recognized products on the receipt:")
+                    st.write(uploaded_file_name)             
+                    include_on = receipt_value_dict[uploaded_file_name][2]
+                    #print(f'include vor toggle{include_on}')
+                    include_on = st.toggle('Activate to include', value = include_on, key=uploaded_file_name)
+                    #print(f'include nach toggle{include_on}')
+                    if uploaded_file_name in selected_files_output:
+                        receipt_value_dict[uploaded_file_name][2] = include_on
+                    if include_on:
+                        st.write('Receipt counted')                   
+                    else:
+                        st.write('Receipt excluded')
+                    st.data_editor(receipt_value_dict[uploaded_file_name][0],
+                                        height=(receipt_value_dict[uploaded_file_name][0].shape[0]*37+21),
+                                        column_config={
+                                        'date': st.column_config.DateColumn('Date', format='DD.MM.YYYY'),
+                                        'product_abbr': 'Name on receipt',
+                                        'receipt_id': 'ID',
+                                        'price': st.column_config.NumberColumn('Price', format='%.2f €')}, 
+                                        hide_index=True)      
 
-                # Check if the receipt is already in the dictionary
-                if file_ocr in receipt_include_dict:
-                    # Use the stored value
-                    include_on = receipt_include_dict[file_ocr]
-                else:
-                    # Default to True for new receipts
-                    include_on = True
-                # Update the dictionary with the user's selection
-                #include_on = st.toggle('Activate to include', value=True, key=file_ocr)
-                receipt_value_dict[file_ocr][2] = st.toggle('Activate to include', value=receipt_value_dict[file_ocr][2], key=file_ocr)
-                #if include_on:
-                if receipt_value_dict[file_ocr][2]:
-                    st.write('Receipt counted')                   
-                else:
-                    st.write('Receipt excluded')
-                st.data_editor(receipt_value_dict[file_ocr][0],
-                                    height=(receipt_value_dict[file_ocr][0].shape[0]*37+21),
-                                    column_config={
-                                    'date': st.column_config.DateColumn('Date', format='DD.MM.YYYY'),
-                                    'product_abbr': 'Name on receipt',
-                                    'receipt_id': 'ID',
-                                    'price': st.column_config.NumberColumn('Price', format='%.2f €')}, 
-                                    hide_index=True)      
-
-            # On column "ocr_image" = "preview of the boxed products on the receipt:"
-            with col_ocr_image:
-                st.subheader("preview of the products on the receipt:")
-                # set the size of the image relativ to column width
-                col_a, col_b, cl_c= st.columns([1, 8 ,1])
-                with col_b:
-                    # find the selected image-file-NAMES
-                    #for file_ocr in selected_files_output:
-                    st.image(receipt_value_dict[file_ocr][1], caption=file_ocr, use_column_width=True)
+                    # On column "ocr_image" = "preview of the boxed products on the receipt:"
+                    with col_ocr_image:
+                        st.subheader("preview of the products on the receipt:")
+                        # set the size of the image relativ to column width
+                        col_a, col_b, cl_c= st.columns([1, 8 ,1])
+                        with col_b:
+                            # find the selected image-file-NAMES
+                            #for file_ocr in selected_files_output:
+                            st.image(receipt_value_dict[uploaded_file_name][1], caption=uploaded_file_name, use_column_width=True)
         
-        
+        #print([value[2] for value in receipt_value_dict.values()])
         # Rember: receipt_value_dict[uploaded_file.name] = [df_sorted, image_boxed, True]
         # Write the dataframes of the receipt into the list of dataframes, if it was included
-        for uploaded_file_name in receipt_value_dict:
+        for uploaded_file_name in receipt_value_dict: # type: ignore
             # if the receipt was included
             if receipt_value_dict[uploaded_file_name][2]:
                 # Extract the dataframe in the dictionary 
@@ -213,10 +209,10 @@ with tab_Output:
     if len(liste_df) > 0:
         # combine all dataframe in the list into a combined dataframe
         combined_df = pd.concat(liste_df, ignore_index=True)      
-        st.dataframe(combined_df, height=(combined_df.shape[0]*37+21))    
+        #st.dataframe(combined_df, height=(combined_df.shape[0]*37+21))    
 
         # submit button
-        button = st.button('accept changes', key='bottom')
+        button = st.button('Accept changes', key='bottom', type='primary')
 
     @st.cache_data
     def write_response_to_df(df=None):
