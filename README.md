@@ -112,6 +112,25 @@ There is no constraint between runs to have the same metadata tracked. I.e. for 
 ![mlflow metadata](images/3_metadata.png)
 
 
+
+
+
+
+```bash
+unzip data.zip
+```
+
+In order to process receipts you will need a Google Cloud Vision API key.
+Once you have your key (stored as .json file) create a `.env` file where you store your API key like this:
+```bash
+GOOGLE_SA_KEY="../SA_key/<name_of_your_API_key>.json"
+```
+Here, `SA_key` denotes the directory where your API key is stored.
+The `process_receipt.py` script will then read your `.env` file to locate the API key.
+
+
+
+
 1. Install [Docker](https://www.docker.com/get-started/)
 1. Install postgresql@14 `brew install postgresql@14`
 1. `cd` into this repo and enter: `docker build -t postgres .`
@@ -127,10 +146,3 @@ docker run -d -e POSTGRES_USER='postgres' \
     postgres
 ```
 
-In order to process receipts you will need a Google Cloud Vision API key.
-Once you have your key (stored as .json file) create a `.env` file where you store your API key like this:
-```bash
-GOOGLE_SA_KEY="../SA_key/<name_of_your_API_key>.json"
-```
-Here, `SA_key` denotes the directory where your API key is stored.
-The `process_receipt.py` script will then read your `.env` file to locate the API key.
