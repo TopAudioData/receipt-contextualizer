@@ -28,9 +28,19 @@ def connect_cursor():
 
 # Setup
 def setup_vector():
-    conn, cur = connect_cursor()
-    # Install pgvector
-    cur.execute("CREATE EXTENSION IF NOT EXISTS vector");
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="receipts",
+            user="postgres",
+            password='postgres'
+        )
+        cur = conn.cursor()
+        
+        # Install pgvector
+        cur.execute("CREATE EXTENSION IF NOT EXISTS vector");
+    except:
+        print('Error connecting to database')
     conn.commit()
     conn.close()
 
