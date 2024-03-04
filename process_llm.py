@@ -146,6 +146,7 @@ def process_abbr_item(item, categories):
     except:
         print('\n\n!!!\n\nError parsing Mixtral message, not formatted correctly as JSON!\n\nMessage:')
         print(message)
+        item_json = {'product_abbr': item}
     
     return item_json
 
