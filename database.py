@@ -54,6 +54,7 @@ def create_table(table):
             CREATE TABLE receipts (
                         id bigserial primary key, 
                         receipt_id text,
+                        receipt_date date,
                         price float,
                         product_abbr text,
                         product_name text,
@@ -133,7 +134,7 @@ def data():
 
     # Format table with column names
     column_names = [x.strip() for x in 'id_pk, receipt_id, price, product_abbr, \
-                    product_name, category_main, category_sub, embedding'.split(',')]
+                    product_name, category_main, category_sub, embedding, receipt_date'.split(',')]
     df = pd.DataFrame(records, columns=column_names)
 
     return df
