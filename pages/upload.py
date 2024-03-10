@@ -128,7 +128,7 @@ with tab_Output:
 
     # Predefine the file selection list to avoid an error
     selected_files_output = []
-    button = st.button('Accept changes', key='top', type='primary')
+    button_top = st.button('Accept changes', type='primary', key='top')
     if not uploaded_files:
         # If no files were uploaded prompt the user to do that
         st.markdown('<p style="color:red;">Upload image-files on tab "Input" first before receipt output could be shown!</p>', unsafe_allow_html=True)
@@ -213,7 +213,7 @@ with tab_Output:
         #st.dataframe(combined_df, height=(combined_df.shape[0]*37+21))    
 
         # submit button
-        button = st.button('Accept changes', key='bottom', type='primary')
+        button_bottom = st.button('Accept changes', type='primary', key='bottom')
 
     @st.cache_data
     def write_response_to_df(df=None):
@@ -224,7 +224,7 @@ with tab_Output:
         return df
     response_df = write_response_to_df() 
 
-    if button == True:
+    if button_top or button_bottom:
         st.write('Start contextualising : :nerd_face:')  
         with st.status('generating names and categories'):
             categories_rewe = llm.get_rewe_categories()
@@ -237,6 +237,7 @@ with tab_Output:
                 response_list.append(response_js)
             
                 response_df = write_response_to_df(response_list)
+                # TODO: join response_df with date, receipt_ID
             
 
 
