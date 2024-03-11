@@ -13,6 +13,7 @@ from PIL import Image, ImageDraw
 
 import read_receipt 
 import process_llm as llm
+import database as db
 
 ### Cached Functions:
 
@@ -30,7 +31,24 @@ def create_receipt_value_dict(uploaded_files):
                 receipt_value_dict[uploaded_file.name] = [df_sorted, image_boxed, True]
     # Return the dictionary 
     print('function create_receipt_value_dict was running')           
-    return receipt_value_dict    
+    return receipt_value_dict
+
+# Process the jsons that the llm returns into dataframe
+@st.cache_data
+def write_response_to_df(response_list):
+    # Make df from augmented data jsons
+    df = pd.DataFrame(response_list)
+    
+    # Join with information in combined_df (date, receipt_ID)
+    df = combined_df.join(df.drop('product_abbr', axis=1))
+    return df
+
+# Process the augmented data with mistral to get embeddings
+@st.cache_data
+def embed_data(df):
+    embedded_df = llm.embed_augmented_data(df)
+    return embedded_df
+
 
 
 # Set page configuration
@@ -205,7 +223,9 @@ with tab_Output:
                 df = receipt_value_dict[uploaded_file_name][0] 
                 # Write the dataframe of this receipt into the list of receipts
                 liste_df.append(df)  
-
+    
+    # Initialize button, because it is in an if-clause
+    button_bottom = None
     # If receipts are available and at least one was selected
     if len(liste_df) > 0:
         # combine all dataframe in the list into a combined dataframe
@@ -215,39 +235,49 @@ with tab_Output:
         # submit button
         button_bottom = st.button('Accept changes', type='primary', key='bottom')
 
-    @st.cache_data
-    def write_response_to_df(df=None):
-        if df == None:          
-            df = None       #TODO: Check if this code is nonsense
-        else:
-            df = pd.DataFrame(response_list) #TODO: where comes responselist into the function?
-        return df
-    response_df = write_response_to_df() 
 
+    has_llm_response = False
     if button_top or button_bottom:
-        st.write('Start contextualising : :nerd_face:')  
-        with st.status('generating names and categories'):
+        st.write('Start contextualising :nerd_face:')  
+        with st.status('Generating names and categories…'):
             categories_rewe = llm.get_rewe_categories()
             product_list = combined_df.product_abbr.to_list()
-            st.write(product_list)
+            #st.write(product_list)
             response_list = []
-            for item in product_list:
-                st.write(f'processing {item}')
-                response_js = llm.process_abbr_item(item, categories_rewe)   
+            for i, item in enumerate(product_list):
+                n = len(product_list)
+                st.write(f'Processing {i + 1} of {n}: {item}')
+                response_js = llm.process_abbr_item(item, categories_rewe)
+                st.write(response_js)
                 response_list.append(response_js)
             
-                response_df = write_response_to_df(response_list)
-                # TODO: join response_df with date, receipt_ID
+            # Use cached function to generate human readable augmented_df
+            augmented_df = write_response_to_df(response_list)
+            # Use cached function to generate df for database
+            database_df = embed_data(augmented_df)
+    
+            st.write(augmented_df)
+            has_llm_response = True
+
             
 
 
 with tab_Context:
     st.subheader("Contextualized Receipts")
-    if not uploaded_files:
+    if not has_llm_response:
         # if no files were uploaded prompt the user to do that
         st.markdown('<p style="color:red;">Upload image-files on tab "Input" first before contextualized receipt output could be shown!</p>', unsafe_allow_html=True)
     else:
-        if response_df is not None:
-            st.table(response_df)
-        st.button('Submit', type='primary')
+        # Show result of data augmentation
+        st.dataframe(augmented_df)
+
+        # User action to write augmented data to database
+        button_store = st.button('Submit', type='primary')
+
+        if button_store:
+            with st.spinner('Writing to database'):
+                
+                
+                # Write to database
+                db.insert_receipt_data(database_df)
         
