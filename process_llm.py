@@ -31,6 +31,18 @@ def get_embeddings_by_chunks(data, chunk_size):
     ]
     return [d.embedding for e in embeddings_response for d in e.data]
 
+def embed_augmented_data(df):
+    # Get embeddings for augmented data
+    if df.shape[0] > 1:
+        # normal case with multiple rows
+        data_strings = [' '.join(row_values) for row_values in df[['product_abbr', 'productName', 'categoryMain', 'categorySub']].astype(str).values]
+    else:
+        # if there is only one row
+        data_strings = [' '.join(df[['product_abbr', 'productName', 'categoryMain', 'categorySub']].astype(str).values)]
+    embeddings = get_embeddings_by_chunks(data_strings, 50)
+    df['embedding'] = embeddings
+    return df
+
 def run_mistral(user_message, model="mistral-medium-latest"):
     """Gets a chat completion response from Mistral API for user_message prompt.
 
@@ -137,7 +149,6 @@ def process_abbr_item(item, categories):
     # Request response from Mixtral
     try:
         print(f'Requesting Mixtral for {item}…')
-        print(MISTRAL_API_KEY)
         message = run_mistral(prompt)
         print('Received response')
     except Exception as e:

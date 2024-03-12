@@ -107,6 +107,7 @@ def insert_receipt_data(processed_receipt_data):
     # Prepare data to insert to psql
     data_list = [(
         row['receipt_id'], 
+        row['date'],
         row['price'], 
         row['product_abbr'], 
         row['productName'], 
@@ -116,7 +117,7 @@ def insert_receipt_data(processed_receipt_data):
         ) for _, row in processed_receipt_data.iterrows()]
     
     # SQL query
-    execute_values(cur, "INSERT INTO receipts (receipt_id, price, product_abbr, \
+    execute_values(cur, "INSERT INTO receipts (receipt_id, receipt_date, price, product_abbr, \
                    product_name, category_main, category_sub, embedding) VALUES %s", data_list)
     conn.commit()
     conn.close()

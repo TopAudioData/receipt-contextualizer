@@ -14,7 +14,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
     )
 
-# Hide streamlit menu
+# Hide streamlit menu TODO: produces large padding on top of page
 hide_streamlit_style = """
 <style>
 #MainMenu {visibility: hidden;}

@@ -13,24 +13,7 @@ from PIL import Image, ImageDraw
 
 import read_receipt 
 import process_llm as llm
-
-### Cached Functions:
-
-# Cache the read_receipt function because it takes a long time to run
-@st.cache_data
-# This function takes the uploaded image-object and returns recognized text in a df and the boxed-receipt
-def create_receipt_value_dict(uploaded_files):
-    # Dictionary to store the receipt-text-df and the boxed-image
-    receipt_value_dict = {}
-    # Process all uploaded files
-    for uploaded_file in uploaded_files: 
-                # Pass the image-object to the function to OCR
-                df_sorted, image_boxed = read_receipt.process_receipt(uploaded_file)
-                # Write the receipt-text-df, the boxed-image into the dictionary and the label to take this receipt into account
-                receipt_value_dict[uploaded_file.name] = [df_sorted, image_boxed, True]
-    # Return the dictionary 
-    print('function create_receipt_value_dict was running')           
-    return receipt_value_dict    
+import database as db
 
 
 # Set page configuration
@@ -41,7 +24,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
     )
 
-# Hide streamlit menu
+# Hide streamlit menu 
 hide_streamlit_style = """
 <style>
 #MainMenu {visibility: hidden;}
@@ -62,15 +45,94 @@ st.sidebar.page_link('pages/visualization.py', label='Explainer', icon='🤯')
 
 
 
+
+
+### Cached Functions
+
+# Cache the read_receipt function because it takes a long time to run
+@st.cache_data
+# This function takes the uploaded image-object and returns recognized text in a df and the boxed-receipt
+def create_receipt_value_dict(uploaded_files):
+    # Dictionary to store the receipt-text-df and the boxed-image
+    receipt_value_dict = {}
+    # Process all uploaded files
+    for uploaded_file in uploaded_files: 
+                # Pass the image-object to the function to OCR
+                df_sorted, image_boxed = read_receipt.process_receipt(uploaded_file)
+                # Write the receipt-text-df, the boxed-image into the dictionary and the label to take this receipt into account
+                receipt_value_dict[uploaded_file.name] = [df_sorted, image_boxed, True]
+    # Return the dictionary 
+    print('function create_receipt_value_dict was running')           
+    return receipt_value_dict
+
+# Store the dataframe resulting the 'include' selection after OCR
+@st.cache_data
+def write_receipt_value_dict_to_df(_receipt_value_dict): # underscore prohibits streamlit from hashing
+    # Structure of dict: receipt_value_dict[uploaded_file.name] = [df_sorted, image_boxed, True]
+
+    liste_df = []
+    for uploaded_file_name in _receipt_value_dict: # type: ignore
+        # if the receipt was included
+        if _receipt_value_dict[uploaded_file_name][2]:
+            # Extract the dataframe in the dictionary 
+            df = _receipt_value_dict[uploaded_file_name][0] 
+            # Write the dataframe of this receipt into the list of receipts
+            liste_df.append(df)
+    if len(liste_df) > 1:
+        # combine all dataframe in the list into a combined dataframe
+        combined_df = pd.concat(liste_df, ignore_index=True)
+    else:
+        # In case there's only one receipt TODO: check if necessary step
+        combined_df = liste_df[0]
+    return combined_df
+
+# Prompt the llm to augment data, return df with complete information
+@st.cache_data
+def prompt_llm_for_responses(combined_df):
+
+    categories_rewe = llm.get_rewe_categories()
+    product_list = combined_df.product_abbr.to_list()
+
+    response_list = []
+    for i, item in enumerate(product_list):
+        n = len(product_list)
+        st.write(f'Processing {i + 1} of {n}: {item}')
+        response_js = llm.process_abbr_item(item, categories_rewe)
+        st.write(response_js)
+        response_list.append(response_js)
+
+    # Make df from augmented data jsons
+    response_df = pd.DataFrame(response_list)
+    
+    # Join with information in combined_df (date, receipt_ID)
+    augmented_df = combined_df.join(response_df.drop('product_abbr', axis=1))
+
+    return augmented_df
+
+# Process the augmented data with mistral to get embeddings
+@st.cache_data
+def embed_data(df):
+    embedded_df = llm.embed_augmented_data(df)
+    return embedded_df
+
+
+### Session state to save buttons' states
+if 'stage' not in st.session_state:
+    # Stage 0: Initialization
+    # Stage 1: Files are uploaded and automatically OCR'd
+    # Stage 2: User has selected which receipts to include for augmentation, button "Contextualize" is clicked
+    # Stage 3: User clicked button "Submit", writing to database
+    st.session_state.stage = 0
+def set_state(i):
+    st.session_state.stage = i
+
+
+# UI
+
 st.title('Receipt upload')
 
-        
-
-
-
-# Create 2 tabs
+# Create tabs
 tab_Input, tab_Output, tab_Context = st.tabs(["Input", "Output", "Contextualized"])
-
 
 with tab_Input:
     # Create 2 columns on tab "Input"
@@ -81,8 +143,9 @@ with col_load_files:
     st.subheader("Load receipt-files")
     # File Upload Widget
     uploaded_files = st.file_uploader("Select one or more images-files for upload",\
-                                       type=['jpg', 'png', 'bmp', 'pcx', 'tif'], \
-                                          accept_multiple_files=True, )
+                                    type=['jpg', 'png', 'bmp', 'pcx', 'tif'], \
+                                        accept_multiple_files=True, 
+                                        on_change=set_state, args=[1])
     # As soon as image-files were uploaded, show the filenames in a table
     if uploaded_files:
         st.subheader("The following files will be processed:")
@@ -99,11 +162,11 @@ with col_load_files:
 # On column "image"
 with col_img:
     st.subheader("Receipts preview")
-     # As soon as image-files were uploaded, show the images of the receipts
+    # As soon as image-files were uploaded, show the images of the receipts
     if uploaded_files:
         # Create a Selectbox for the image to be shown
         selected_file_name = st.selectbox("Select an image of a receipt to be shown",\
-                                              file_names)
+                                            file_names)
     
         # Find the selected image-file and show the image
         for uploaded_file in uploaded_files:
@@ -120,15 +183,19 @@ with col_img:
 
 
 
+
 with tab_Output:
     if uploaded_files:
     # Perform OCR and create boxed-images of all uploaded receipts, function is cached
-        receipt_value_dict =create_receipt_value_dict(uploaded_files)
+        receipt_value_dict = create_receipt_value_dict(uploaded_files)
     #st.write(receipt_value_dict)
 
     # Predefine the file selection list to avoid an error
     selected_files_output = []
-    button = st.button('Accept changes', key='top', type='primary')
+
+    # Submit button at the top
+    button_top = st.button('Contextualize', type='primary', key='top', on_click=set_state, args=[2])
+    
     if not uploaded_files:
         # If no files were uploaded prompt the user to do that
         st.markdown('<p style="color:red;">Upload image-files on tab "Input" first before receipt output could be shown!</p>', unsafe_allow_html=True)
@@ -145,13 +212,7 @@ with tab_Output:
             selected_files_output = list(set(selected_files_output))
         #st.text(selected_files_output)
 
-   
-
     # Show the recognized products and the preview only if files are selected
-    liste_df = []
-   
-
-
     count = 0
     if selected_files_output:
         c = st.container()
@@ -195,58 +256,46 @@ with tab_Output:
                             #for file_ocr in selected_files_output:
                             st.image(receipt_value_dict[uploaded_file_name][1], caption=uploaded_file_name, use_column_width=True)
         
-        #print([value[2] for value in receipt_value_dict.values()])
-        # Rember: receipt_value_dict[uploaded_file.name] = [df_sorted, image_boxed, True]
-        # Write the dataframes of the receipt into the list of dataframes, if it was included
-        for uploaded_file_name in receipt_value_dict: # type: ignore
-            # if the receipt was included
-            if receipt_value_dict[uploaded_file_name][2]:
-                # Extract the dataframe in the dictionary 
-                df = receipt_value_dict[uploaded_file_name][0] 
-                # Write the dataframe of this receipt into the list of receipts
-                liste_df.append(df)  
 
-    # If receipts are available and at least one was selected
-    if len(liste_df) > 0:
-        # combine all dataframe in the list into a combined dataframe
-        combined_df = pd.concat(liste_df, ignore_index=True)      
-        #st.dataframe(combined_df, height=(combined_df.shape[0]*37+21))    
+    # submit button at the bottom
+    button_bottom = st.button('Contextualize', type='primary', key='bottom', on_click=set_state, args=[2])
 
-        # submit button
-        button = st.button('Accept changes', key='bottom', type='primary')
+    if st.session_state.stage >= 2:
+        st.write('Start contextualising :nerd_face:')  
+        with st.status('Generating names and categories…'):
 
-    @st.cache_data
-    def write_response_to_df(df=None):
-        if df == None:          
-            df = None       #TODO: Check if this code is nonsense
-        else:
-            df = pd.DataFrame(response_list) #TODO: where comes responselist into the function?
-        return df
-    response_df = write_response_to_df() 
+            # Combine the dataframes of the included receipts
+            combined_df = write_receipt_value_dict_to_df(receipt_value_dict)
 
-    if button == True:
-        st.write('Start contextualising : :nerd_face:')  
-        with st.status('generating names and categories'):
-            categories_rewe = llm.get_rewe_categories()
-            product_list = combined_df.product_abbr.to_list()
-            st.write(product_list)
-            response_list = []
-            for item in product_list:
-                st.write(f'processing {item}')
-                response_js = llm.process_abbr_item(item, categories_rewe)   
-                response_list.append(response_js)
+            # Use cached function to connect to LLM
+            augmented_df = prompt_llm_for_responses(combined_df)
             
-                response_df = write_response_to_df(response_list)
+            # Use cached function to generate df for database
+            database_df = embed_data(augmented_df)
+    
+            st.write(augmented_df)
+            has_llm_response = True
+
             
 
 
 with tab_Context:
     st.subheader("Contextualized Receipts")
-    if not uploaded_files:
+    if st.session_state.stage >= 2:
+        # Show result of data augmentation
+        st.dataframe(augmented_df)
+
+        # User action to write augmented data to database
+        button_store = st.button('Submit', type='primary', on_click=set_state, args=[3])
+
+        if st.session_state.stage >= 3:
+            with st.spinner('Writing to database'):
+                
+                # Write to database
+                db.insert_receipt_data(database_df)
+                st.success('Receipts saved. You can return to the app.')
+
+    else:
+
         # if no files were uploaded prompt the user to do that
         st.markdown('<p style="color:red;">Upload image-files on tab "Input" first before contextualized receipt output could be shown!</p>', unsafe_allow_html=True)
-    else:
-        if response_df is not None:
-            st.table(response_df)
-        st.button('Submit', type='primary')
-        
