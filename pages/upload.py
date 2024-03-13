@@ -36,7 +36,7 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # Page navigation
 #st.sidebar.title('Receipt :receipt::nerd_face::bar_chart: Contextualizer')
-st.sidebar.image('receipt_logo.png', use_column_width='always')
+st.sidebar.image('images/receipt_logo.png', use_column_width='always')
 st.sidebar.page_link('home.py', label='Home', icon='📊')
 st.sidebar.page_link('pages/search.py', label='Search', icon='🔎')
 st.sidebar.page_link('pages/upload.py', label='Upload', icon='🧾')
@@ -118,12 +118,15 @@ def embed_data(df):
 
 ### Session state to save buttons' states
 if 'stage' not in st.session_state:
-    # Stage 0: Initialization
-    # Stage 1: Files are uploaded and automatically OCR'd
-    # Stage 2: User has selected which receipts to include for augmentation, button "Contextualize" is clicked
-    # Stage 3: User clicked button "Submit", writing to database
     st.session_state.stage = 0
 def set_state(i):
+    """Set stage of upload page to save button interactions
+    
+    Stage 0: Initialization
+    Stage 1: Files are uploaded and automatically OCR'd
+    Stage 2: User has selected which receipts to include for augmentation, button "Contextualize" is clicked
+    Stage 3: User clicked button "Submit", writing to database
+    """
     st.session_state.stage = i
 
 
@@ -261,7 +264,7 @@ with tab_Output:
     button_bottom = st.button('Contextualize', type='primary', key='bottom', on_click=set_state, args=[2])
 
     if st.session_state.stage >= 2:
-        st.write('Start contextualising :nerd_face:')  
+        st.write('Start contextualising :nerd_face: This might take a while…')  
         with st.status('Generating names and categories…'):
 
             # Combine the dataframes of the included receipts

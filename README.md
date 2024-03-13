@@ -1,3 +1,54 @@
+![RECEIPT CONTEXTUALIZER LOGO](images/receipt_logo_solid.png)
+
+**Make receipts speak.**
+
+![Screenshot of dashboard](images/dashboard.png)
+
+Receipt data is messy. RECEIPT CONTEXTUALIZER augments
+abbreviations and brand names on receipts into
+supermarket product categories. It harnesses
+information in large language models with
+prompt engineering and provides a semantic
+search with text embeddings. A beautiful
+dashboard allows you to get granular
+insight into your grocery expenses and make
+informed spending decisions.
+
+This is a functioning prototype built on streamlit. It uses the Google Cloud Vision API and Mistral API, as well as a PostgreSQL database. See setup below.
+
+### Home dashboard
+
+The dashboard gives you an overview over your spendings. In the sidebar you can select the timeframe you're interested in and the analytics will adapt. Hover the cursor over the bar charts to see more detailed information.
+
+- Metrics at a glance
+    - Total spendings sum
+    - Highest spendings category
+    - Most often bought kind of product
+- Vertical bar charts
+    - Expenses per month
+    - Expenses per month colored by main category
+    - Expenses per day
+    - Expenses per day colored by main category
+- Horizontal bar charts
+    - Expenses per main category
+    - Expenses per main category, colored by subcategory (kind of product)
+- Tables
+    - Sums of expenses grouped by month and main category
+
+### Semantic search
+
+The search tab lets you search for products in your receipt history with natural language. Check out the explainer on how that works.
+
+You can also search for products available at REWE.
+
+### Data
+
+See your receipt history all in one place. It also shows you what data was scanned from your receipts and what data is the result of augmentation with a large language model. You can use the table to sort by different columns and download the data as a CSV file.
+
+### Upload
+
+On the upload page you can upload your receipt scans. Select one or multiple files to upload, 
+
 ## Setup
 
 Open a terminal and `cd` into this repo.
@@ -64,6 +115,7 @@ docker run -d -e POSTGRES_USER='postgres' \
 Start the database container
 
 - Open the Docker dashboard and click the play icon at the `receipts` container.
+- This step has to be repeated if your machine was idle.
 
 ### Python environment
 
@@ -79,7 +131,7 @@ pip install -r requirements.txt
 
 ### Insert Rewe products for search
 
-Run the database.py script to insert the REWE search data.
+Run the database.py script to insert REWE products for semantic search into database.
 
 ```bash
 python database.py
