@@ -140,7 +140,7 @@ pip install -r requirements.txt
 
 ### Insert Rewe products for search
 
-Run the database.py script to insert REWE products for semantic search into database.
+Run the database.py script to initialize the tables and insert REWE products for semantic search into database.
 
 ```bash
 python database.py
