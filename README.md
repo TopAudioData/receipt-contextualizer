@@ -18,6 +18,10 @@ This is a functioning prototype built on streamlit. It uses the Google Cloud Vis
 
 ### Home dashboard
 
+
+https://github.com/TopAudioData/receipt-contextualizer/assets/36531614/ea22e535-84f9-4309-b9eb-0b3d65127104
+
+
 The dashboard gives you an overview over your spendings. In the sidebar you can select the timeframe you're interested in and the analytics will adapt. Hover the cursor over the bar charts to see more detailed information.
 
 - Metrics at a glance
@@ -37,17 +41,29 @@ The dashboard gives you an overview over your spendings. In the sidebar you can 
 
 ### Semantic search
 
+
+https://github.com/TopAudioData/receipt-contextualizer/assets/36531614/8a8fef36-af1d-4d73-adcd-06c2dc3fd78b
+
+
 The search tab lets you search for products in your receipt history with natural language. Check out the explainer on how that works.
 
 You can also search for products available at REWE.
 
 ### Data
 
+
+https://github.com/TopAudioData/receipt-contextualizer/assets/36531614/a842a6ab-baf8-437c-aaf0-d1e05d3cc937
+
+
 See your receipt history all in one place. It also shows you what data was scanned from your receipts and what data is the result of augmentation with a large language model. You can use the table to sort by different columns and download the data as a CSV file.
 
 ### Upload
 
-On the upload page you can upload your receipt scans. Select one or multiple files to upload, 
+
+https://github.com/TopAudioData/receipt-contextualizer/assets/36531614/44930af8-a343-4d72-ac31-ce99c563c548
+
+
+On the upload page you can upload your receipt scans. Select one or multiple files to upload, see where text was recognized and send your receipts off to be augmented, before saving them to your local database.
 
 ## Setup
 
