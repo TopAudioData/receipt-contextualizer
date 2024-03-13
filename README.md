@@ -2,17 +2,10 @@
 
 **Make receipts speak.**
 
+Receipt data is messy. RECEIPT CONTEXTUALIZER augments abbreviations and brand names on receipts into supermarket product categories. It harnesses information in large language models with prompt engineering and provides a semantic search with text embeddings. A beautiful dashboard allows you to get granular insight into your grocery expenses and make informed spending decisions.
+
 ![Screenshot of dashboard](images/dashboard.png)
 
-Receipt data is messy. RECEIPT CONTEXTUALIZER augments
-abbreviations and brand names on receipts into
-supermarket product categories. It harnesses
-information in large language models with
-prompt engineering and provides a semantic
-search with text embeddings. A beautiful
-dashboard allows you to get granular
-insight into your grocery expenses and make
-informed spending decisions.
 
 This is a functioning prototype built on streamlit. It uses the Google Cloud Vision API and Mistral API, as well as a PostgreSQL database. See setup below.
 
