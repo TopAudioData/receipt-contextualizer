@@ -80,7 +80,7 @@ unzip data.zip
 
 ### APIs
 
-The current version of RECEIPT CONTEXTUALIZER is uses the Google Cloud Vision API the Mistral API. Allow your instance of RECEIPT CONTEXTUALIZER to connect to both with the following steps.
+The current version of RECEIPT CONTEXTUALIZER uses the Google Cloud Vision API and the Mistral API. Allow your instance of RECEIPT CONTEXTUALIZER to connect to both with the following steps.
 
 Create necessary files and directories.
 
