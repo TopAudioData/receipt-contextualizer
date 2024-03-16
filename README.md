@@ -58,6 +58,16 @@ https://github.com/TopAudioData/receipt-contextualizer/assets/36531614/44930af8-
 
 On the upload page you can upload your receipt scans. Select one or multiple files to upload, see where text was recognized and send your receipts off to be augmented, before saving them to your local database.
 
+## Limitations
+
+Current limitations
+- Parsing OCR'd receipts information
+    - Only tested for REWE receipts
+    - Produces errors separating price from item
+    - Price information for single item is dismissed for multiple items of the same kind
+    - Discounts are currently not associated with the item that was discounted
+- Mistral API rate limit to 5 requests per minute slows down data augmentation considerably
+
 ## Setup
 
 Open a terminal and `cd` into this repo.
