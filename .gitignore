@@ -53,6 +53,7 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+.vscode/
 
 # Translations
 *.mo
@@ -138,6 +139,7 @@ SA_key/
 rewe_scanned/
 models/*.sav
 mlruns
+db-data/
 
 #config file has sensitive data
 .mlflow_uri

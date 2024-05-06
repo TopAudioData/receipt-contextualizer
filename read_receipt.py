@@ -166,7 +166,7 @@ def process_receipt(uploaded_file):
     min_ind = argrelmin(y_flat.to_numpy())[0]
 
     # label the rows of the dataframe with the corresponding lines on the receipt
-    df_products['line']=''
+    df_products.loc[:, 'line'] = ''
     for i in range(len(max_ind)):
         df_products['line'].iloc[max_ind[i]:min_ind[i]+1] = i
     df_products['line'].iloc[min_ind[i]+1:df_products.shape[0]] = i+1 # make sure the last line gets labeled as well

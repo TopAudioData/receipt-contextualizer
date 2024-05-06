@@ -1,9 +1,16 @@
+'''
+Start RECEIPT CONTEXTUALIZER by running
+streamlit run home.py 
+in Terminal
+'''
+
+# Import libraries:
 import streamlit as st
 import pandas as pd
 import datetime as dt
-
 import plotly.express as px
 
+# Import script-files:
 import database as db
 
 # Page config
@@ -14,9 +21,10 @@ st.set_page_config(
     initial_sidebar_state="expanded"
     )
 
-# Hide streamlit menu TODO: produces large padding on top of page
+# Hide streamlit menu and reduce padding on top of the page
 hide_streamlit_style = """
 <style>
+.block-container {padding-top: 1rem;}
 #MainMenu {visibility: hidden;}
 #root > div:nth-child(1) > div.withScreencast > div > div > header {visibility: hidden;}
 footer {visibility: hidden;}
@@ -24,12 +32,10 @@ footer {visibility: hidden;}
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
-# Page navigation
-#logo, title = st.sidebar.columns([2,5])
-#with logo:
+## Sidebar:
+# Show the logo
 st.sidebar.image('images/receipt_logo.png', use_column_width='always')
-#with title:
-#    st.title('Receipt :receipt::nerd_face::bar_chart: Contextualizer')
+# Page navigation
 st.sidebar.page_link('home.py', label='Home', icon='📊')
 st.sidebar.page_link('pages/search.py', label='Search', icon='🔎')
 st.sidebar.page_link('pages/upload.py', label='Upload', icon='🧾')
@@ -37,8 +43,9 @@ st.sidebar.page_link('pages/data.py', label='Data', icon='🗄️')
 st.sidebar.page_link('pages/visualization.py', label='Explainer', icon='🤯')
 st.sidebar.divider()
 
-#Get receipts data from database
+# Get receipts data from database
 df = db.data()
+df['receipt_date'] = pd.to_datetime(df['receipt_date'])
 column_names = {
     'id_pk':'ID',
     'receipt_id':'Receipt',
@@ -50,57 +57,63 @@ column_names = {
     'category_sub':'Kind',
     'embedding':'Semantic coordinates'
 }
+
+# Set the color-schema for plots
 color_scale = px.colors.qualitative.Alphabet
 
 
-# Options for dashboard
-
+## Options for dashboard
 # Show subcategories
-
 toggle_subcategories = st.sidebar.toggle(':eyes: I need details!')
 
-# Select timeframe
+# Select timeframe for available data
 dates = []
 try:
     df_timeframe = [df.receipt_date.min().date(), df.receipt_date.max().date()]
-    dates = st.sidebar.date_input('Select dates of expenses', value=(df_timeframe),
-                                min_value=df_timeframe[0],
-                                max_value=df_timeframe[1],
-                                format='DD.MM.YYYY')
 except:
     pass
+# Create a placeholder for selection of date
+placeholder = st.sidebar.empty()
 
-# TODO: set date_input state to reset
+# Reset-Button to reset the selected-date to available date
 reset_dates = st.sidebar.button('Reset')
 
-if reset_dates: # Reset button will display full df
-    pass 
+# Widget to select the dates at the location of the placeholder
+dates=placeholder.date_input('Select dates of expenses', value=(df_timeframe),
+                            min_value=df_timeframe[0],
+                            max_value=df_timeframe[1],
+                            format='DD.MM.YYYY', key='selected_date')
+
+if reset_dates: # Reset button will display full available dates
+    # Reset both the dates and the date_input widget. The placeholder is replaced for resetting
+    dates=placeholder.date_input('Select dates of expenses', value=(df_timeframe),
+                                min_value=df_timeframe[0],
+                                max_value=df_timeframe[1],
+                                format='DD.MM.YYYY', key='reset_date')
 elif len(dates) == 2: # Dashboard already updates and throws error if only one date is chosen
     # Query df for timeframe for all visualizations on the dashboard
     df = df.query('@dates[0] <= receipt_date <= @dates[-1]') 
 
 
 # Check if a receipt was already uploaded. If not, prompt the user to do so. Otherwise, show expenses and infos from the uploaded receipts
-if not df.empty:
-
+if df.empty:
+    st.markdown('<p style="color:red;">Upload image-files on the Upload page first before any receipt data can be shown!</p>', unsafe_allow_html=True)
+else:
     # Overview over spending at a glance
     metric1, metric2, metric3 = st.columns(3, gap='small')
 
     with metric1:
         total_spending = df.price.sum()
-
         st.metric(':money_with_wings: Total spending', 
                 value=f'{round(total_spending, 2)} €')
     with metric2:
         most_spending_category = df.groupby('category_main').price.sum().sort_values(ascending=False).reset_index().iloc[0].to_list()
-
         st.metric(':gem: Most expensive category', 
                 value=f'{round(most_spending_category[1], 2)} €', 
                 delta=most_spending_category[0], 
                 delta_color='off')
     with metric3:
         top_count_category = df.loc[df['price']>0].category_sub.value_counts().reset_index().iloc[0].to_list()
-
         st.metric(':shopping_bags: Most common kind of product',
                 value=top_count_category[0],
                 delta=f'Bought {top_count_category[1]} times',
@@ -276,5 +289,4 @@ if not df.empty:
                             .sort_values(by='Date')
                             .rename(columns=column_names)
                             .style.format({'Price':'{:.2f} €'}))
-else:
-    st.markdown('<p style="color:red;">Upload image-files on the Upload page first before any receipt data can be shown!</p>', unsafe_allow_html=True)
+
