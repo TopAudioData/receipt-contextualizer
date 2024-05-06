@@ -1,4 +1,4 @@
-#This is the Capstone Project of the Data Science Bootcamp [Neue Fische | school and pool for digital talent](https://github.com/neuefische) by [Leo Kamps](https://github.com/leokam), [Jakob Butlewski](https://github.com/kubaBigos) and [Tobias Pötzl](https://github.com/TopAudioData).
+## This is the Capstone Project of the Data Science Bootcamp [Neue Fische | school and pool for digital talent](https://github.com/neuefische) by [Leo Kamps](https://github.com/leokam), [Jakob Butlewski](https://github.com/kubaBigos) and [Tobias Pötzl](https://github.com/TopAudioData).
 
 ### Our Presentation at the Graduation Event you could find at YouTube:
 https://www.youtube.com/watch?v=c0mJM13bJv8
