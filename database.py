@@ -129,7 +129,7 @@ def data():
     conn, cur = connect_cursor()
 
     # SQL query
-    cur.execute("SELECT * FROM receipts;")
+    cur.execute("SELECT id, receipt_id, price, product_abbr, product_name, category_main, category_sub, embedding, receipt_date FROM receipts;")
     records = cur.fetchall()
     conn.close()
 

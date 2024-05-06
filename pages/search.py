@@ -25,9 +25,10 @@ st.set_page_config(
     initial_sidebar_state="expanded"
     )
 
-# Hide streamlit menu
+# Hide streamlit menu and reduce padding on top of the page
 hide_streamlit_style = """
 <style>
+.block-container {padding-top: 1rem;}
 #MainMenu {visibility: hidden;}
 #root > div:nth-child(1) > div.withScreencast > div > div > header {visibility: hidden;}
 footer {visibility: hidden;}

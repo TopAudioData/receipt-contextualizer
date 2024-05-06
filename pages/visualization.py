@@ -18,9 +18,10 @@ st.set_page_config(
     initial_sidebar_state="expanded"
     )
 
-# Hide streamlit menu
+# Hide streamlit menu and reduce padding on top of the page
 hide_streamlit_style = """
 <style>
+.block-container {padding-top: 1rem;}
 #MainMenu {visibility: hidden;}
 #root > div:nth-child(1) > div.withScreencast > div > div > header {visibility: hidden;}
 footer {visibility: hidden;}
@@ -166,12 +167,12 @@ with prompting:
         }
 
         # For prototype: insert dates
-        receipt_ids =   ['Rewe_1.jpg', 'Rewe_2.jpg', 'Rewe_3.jpg', 'Rewe_4.jpg', 'Rewe_5.jpg', 'Rewe_6.jpg', 'Rewe_7.jpg', 'Rewe_8.jpg', 'Rewe_9.jpg', 'Rewe_10.jpg', 'Rewe_11.jpg', 'Rewe_12.jpg', 'Rewe_13.jpg', 'Rewe_14.jpg']
-        receipt_dates = ['20.01.2024', '12.12.2023', '30.12.2023', '13.12.2023', '08.11.2023', '11.11.2023', '18.11.2023', '11.11.2023', '07.11.2023', '22.01.2024',  '04.12.2023',  '09.02.2024',  '20.12.2023',  '03.01.2024']
+        #receipt_ids =   ['Rewe_1.jpg', 'Rewe_2.jpg', 'Rewe_3.jpg', 'Rewe_4.jpg', 'Rewe_5.jpg', 'Rewe_6.jpg', 'Rewe_7.jpg', 'Rewe_8.jpg', 'Rewe_9.jpg', 'Rewe_10.jpg', 'Rewe_11.jpg', 'Rewe_12.jpg', 'Rewe_13.jpg', 'Rewe_14.jpg']
+        #receipt_dates = ['20.01.2024', '12.12.2023', '30.12.2023', '13.12.2023', '08.11.2023', '11.11.2023', '18.11.2023', '11.11.2023', '07.11.2023', '22.01.2024',  '04.12.2023',  '09.02.2024',  '20.12.2023',  '03.01.2024']
 
-        df_dates = pd.DataFrame(zip(receipt_ids, receipt_dates), columns=['receipt_id', 'receipt_date'])
-        df_dates.receipt_date = pd.to_datetime(df_dates.receipt_date, dayfirst=True)
-        df = df.join(df_dates.set_index('receipt_id'), on='receipt_id')
+        #df_dates = pd.DataFrame(zip(receipt_ids, receipt_dates), columns=['receipt_id', 'receipt_date'])
+        #df_dates.receipt_date = pd.to_datetime(df_dates.receipt_date, dayfirst=True)
+        #df = df.merge(df_dates.set_index('receipt_id'), on='receipt_id')
 
 
 
@@ -181,7 +182,8 @@ with prompting:
         full_data = st.toggle('Show :receipt::nerd_face::bar_chart: generated data')
         if full_data:
             # Show AI generated data
-            st.dataframe(df.rename(columns=column_names).sort_values(by='Date', ascending=False)
+            print(df.columns)
+            st.dataframe(df.rename(columns=column_names).sort_values(by='receipt_date', ascending=False)
                         [['Date', 'Name on receipt', 'Price', 'Name', 'Category', 'Kind']], # TODO: add back in 'Receipt' after presentation
                         column_config={
                             'Date': st.column_config.DateColumn(format='DD.MM.YYYY'),
@@ -192,6 +194,7 @@ with prompting:
             #st.button('Submit Edits', type='primary')
         else:
             # Show prettified dataframe
+            print(df.columns)
             st.dataframe(df.rename(columns=column_names).sort_values(by='Date', ascending=False)
                         [['Date', 'Name on receipt', 'Price']], # TODO: add back in 'Receipt' after presentation
                         column_config={
